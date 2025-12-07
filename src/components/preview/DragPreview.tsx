@@ -1,0 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
+import { QItem } from './QItem';
+
+interface DragPreviewProps {
+  leftIcon: any;
+  heading: string;
+  description: string;
+}
+
+export default function DragPreview({
+  leftIcon,
+  heading,
+  description,
+}: DragPreviewProps) {
+  return (
+    <div>
+      <QItem
+        leftIcon={leftIcon}
+        heading={heading}
+        description={description}
+        className="border border-gray-200"
+      />
+    </div>
+  );
+}
