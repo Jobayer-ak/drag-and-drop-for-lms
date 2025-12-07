@@ -35,7 +35,7 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
 
   return (
     <Card
-      className={`border ${
+      className={`border rounded-3xl ${
         preview ? 'bg-white' : ''
       } border-gray-200 rounded-lg py-2`}
     >

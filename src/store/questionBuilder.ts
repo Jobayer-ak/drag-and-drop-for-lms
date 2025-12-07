@@ -2,6 +2,7 @@
 // /store/questionBuilder.ts
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 export interface QuestionItem {
@@ -30,53 +31,55 @@ interface QuestionBuilderStore {
 }
 
 export const useQuestionBuilder = create<QuestionBuilderStore>()(
-  immer((set, get) => ({
-    activeItem: null,
-    droppedItems: [],
-    selectedUid: null,
+  devtools(
+    immer((set, get) => ({
+      activeItem: null,
+      droppedItems: [],
+      selectedUid: null,
 
-    setActiveItem: (item) => {
-      set((state) => {
-        state.activeItem = item;
-      });
-    },
-
-    addDroppedItem: (item) => {
-      // const exists = get().droppedItems.find((q) => q.id === item.id);
-
-      set((state) => {
-        state.droppedItems.push({
-          ...item,
-          uid: uuidv4(),
-          data: {}, // initialize empty data
+      setActiveItem: (item) => {
+        set((state) => {
+          state.activeItem = item;
         });
-      });
-      return true;
-    },
+      },
 
-    deleteDroppedItem: (uid) => {
-      set((state) => {
-        state.droppedItems = state.droppedItems.filter((q) => q.uid !== uid);
-        if (state.selectedUid === uid) state.selectedUid = null;
-      });
-    },
+      addDroppedItem: (item) => {
+        // const exists = get().droppedItems.find((q) => q.id === item.id);
 
-    selectDroppedItem: (uid) => {
-      set((state) => {
-        state.selectedUid = uid;
-      });
-    },
+        set((state) => {
+          state.droppedItems.push({
+            ...item,
+            uid: uuidv4(),
+            data: {}, // initialize empty data
+          });
+        });
+        return true;
+      },
 
-    updateDroppedItem: (uid, newData) => {
-      set((state) => {
-        const index = state.droppedItems.findIndex((q) => q.uid === uid);
-        if (index !== -1) {
-          state.droppedItems[index] = {
-            ...state.droppedItems[index],
-            ...newData,
-          };
-        }
-      });
-    },
-  }))
+      deleteDroppedItem: (uid) => {
+        set((state) => {
+          state.droppedItems = state.droppedItems.filter((q) => q.uid !== uid);
+          if (state.selectedUid === uid) state.selectedUid = null;
+        });
+      },
+
+      selectDroppedItem: (uid) => {
+        set((state) => {
+          state.selectedUid = uid;
+        });
+      },
+
+      updateDroppedItem: (uid, newData) => {
+        set((state) => {
+          const index = state.droppedItems.findIndex((q) => q.uid === uid);
+          if (index !== -1) {
+            state.droppedItems[index] = {
+              ...state.droppedItems[index],
+              ...newData,
+            };
+          }
+        });
+      },
+    }))
+  )
 );
