@@ -1,9 +1,22 @@
 'use client';
+
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
+import DraggableQuestions from '../components/draggable/DraggableQuestions';
 import DropZoneContainer from '../components/drop-zone/DropZoneContainer';
 import EditZoneContainer from '../components/edit-zone/EditZoneContainer';
+import DragPreview from '../components/preview/DragPreview';
 import { ICON_MAP } from '../components/question-items/QItem';
-import QuestionTypeZone from '../components/question-type-zone/QuestionTypeZone';
+import { showSuccess } from '../lib/toastHelper';
+import { useQuestionBuilder } from '../store/questionBuilder';
 
 const items = [
   {
@@ -52,37 +65,78 @@ const items = [
 
 export default function Home() {
   const [mounted, setMounted] = useState<boolean>(false);
+  const { activeItem, addDroppedItem, setActiveItem } = useQuestionBuilder();
 
   useEffect(() => {
     setMounted(true);
   }, [mounted]);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const id = event.active.id;
+    const found = items.find((i) => i.id === id);
+    setActiveItem(found ?? null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { over } = event;
+
+    if (over?.id === 'DROP_ZONE' && activeItem) {
+      if (addDroppedItem(activeItem))
+        showSuccess(`${event?.active?.id} question added successfully!`);
+    }
+
+    setActiveItem(null); // Reset preview
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required to start drag (prevents accidental drags)
+      },
+    })
+  );
+
   return (
-    <div className="h-screen bg-white flex flex-row  gap-12 px-8 py-4 overflow-hidden">
-      <aside className="basis-xs rounded-md overflow-y-auto max-h-full hide-scrollbar">
-        <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-lg font-semibold">
-          Form Elements
-        </h3>
-        {mounted &&
-          items.map((item) => (
-            <div key={item.id}>
-              <QuestionTypeZone
-                leftIcon={ICON_MAP[item.icon]}
-                heading={item.name}
-                description={item.description}
-              />
-            </div>
-          ))}
-      </aside>
-      <main className="basis-lg border border-gray-200 rounded-sm p-2 mt-5">
-        <DropZoneContainer />
-      </main>
-      <aside className="basis-sm border border-gray-200">
-        <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-md font-semibold">
-          Ordering/Selection
-        </h3>
-        <EditZoneContainer />
-      </aside>
-    </div>
+    <DndContext
+      onDragStart={handleDragStart}
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="h-screen bg-white flex flex-row  gap-12 px-8 py-4 overflow-hidden">
+        <aside className="basis-sm rounded-md overflow-y-auto max-h-full hide-scrollbar">
+          <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-lg font-semibold">
+            Form Elements
+          </h3>
+          {mounted &&
+            items.map((item) => (
+              <div key={item.id}>
+                <DraggableQuestions
+                  id={item.id}
+                  leftIcon={ICON_MAP[item.icon]}
+                  heading={item.name}
+                  description={item.description}
+                />
+              </div>
+            ))}
+        </aside>
+        <main className="basis-2xl border border-gray-200 rounded-[8px] p-6 mt-5 overflow-hidden">
+          <DropZoneContainer />
+        </main>
+        <aside className="basis-sm border border-gray-200">
+          <EditZoneContainer />
+        </aside>
+
+        <DragOverlay>
+          {activeItem ? (
+            // render a PRESENTATIONAL preview (no useDraggable inside)
+            <DragPreview
+              leftIcon={ICON_MAP[activeItem.icon]}
+              heading={activeItem.name}
+              description={activeItem.description}
+            />
+          ) : null}
+        </DragOverlay>
+      </div>
+    </DndContext>
   );
 }

@@ -35,7 +35,7 @@ export function QItem({
   const LeftIcon = leftIcon;
 
   return (
-    <div id="icard" className="min-h-auto">
+    <div id="icard" className="min-h-auto touch-none">
       <Card
         className={`w-full max-w-sm shadow-none rounded-sm px-4 py-3 bg-white border-0 border-b border-gray-200 ${className} hover:cursor-move `}
       >

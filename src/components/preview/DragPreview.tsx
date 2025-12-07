@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { QItem } from './QItem';
+import { QItem } from '../question-items/QItem';
 
 interface DragPreviewProps {
   leftIcon: any;
