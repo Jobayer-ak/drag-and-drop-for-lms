@@ -17,6 +17,7 @@ import TrueFalse from '../question_comp/true_false/TrueFalse';
 
 const DropZoneContainer = () => {
   const [pendingDeleteUid, setPendingDeleteUid] = useState<string | null>(null);
+  const [selected, setSelected] = useState<boolean>(false);
 
   const { setNodeRef, active, isOver, over } = useDroppable({
     id: 'DROP_ZONE',
@@ -29,7 +30,7 @@ const DropZoneContainer = () => {
     selectDroppedItem,
   } = useQuestionBuilder();
 
-  console.log('dropped items length is: ', droppedItems);
+  // console.log('dropped items length is: ', droppedItems);
 
   // Handle confirmation delete
   const handleDeleteConfirm = () => {
@@ -46,6 +47,8 @@ const DropZoneContainer = () => {
     const commonProps = {
       key: item.uid,
       uid: item.uid,
+      selected: selected,
+      setSelected: setSelected,
       onEdit: () => selectDroppedItem(item.uid),
       onDelete: () => setPendingDeleteUid(item.uid), // trigger confirmation
     };
@@ -68,16 +71,21 @@ const DropZoneContainer = () => {
     <div
       ref={setNodeRef}
       id="drop_zone"
-      className={`flex flex-col gap-3 h-full ${
-        active ? 'border-2 border-dashed border-gray-600 rounded-[8px]' : ''
-      }  overflow-y-auto hide-scrollbar`}
+      className={`
+      flex flex-col gap-3 
+      bg-white border border-gray-200 h-screen overflow-y-auto hide-scrollbar rounded-[8px] p-8
+      
+      
+    `}
     >
       {droppedItems?.length > 0 ? (
-        <div className="p-8 space-y-3">
+        <div className={`space-y-3`}>
           {droppedItems.map((item) => renderQuestion(item))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-2 opacity-60">
+        <div
+          className={`flex flex-col items-center justify-center gap-2 opacity-60 py-10 h-full border-2 border-dashed border-gray-600 rounded-[8px]`}
+        >
           <PiArrowsOut className="h-25 w-25 text-gray-400 " />
           <h4 className="text-gray-800 font-semibold text-lg">
             Drag and Drop Questions Here
@@ -85,7 +93,6 @@ const DropZoneContainer = () => {
         </div>
       )}
 
-      {/* Global Delete Confirmation Dialog */}
       {pendingDeleteUid && (
         <DeleteConfirm
           open={Boolean(pendingDeleteUid)}

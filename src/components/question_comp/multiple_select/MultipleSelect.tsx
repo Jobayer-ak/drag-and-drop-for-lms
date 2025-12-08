@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 'use client';
 
 import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import { useQuestionBuilder } from '../../../store/questionBuilder';
 import { ComponentNameProps } from '../../../types/types';
 import { Badge } from '../../ui/badge';
 import {
@@ -21,11 +23,14 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
   uid,
   dragHandleProps,
   preview,
+
   onDelete,
   onEdit,
 }) => {
   const options = ['Option 1', 'Option 2', 'Option 3'];
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+
+  const { selectedUid } = useQuestionBuilder();
 
   const handleChange = (option: string) => {
     setCheckedItems((prev) => ({
@@ -34,13 +39,13 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
     }));
   };
 
-  console.log('uid: ', uid);
-
   return (
     <Card
-      className={`border ${
-        preview ? 'bg-white' : ''
-      } border-gray-200 rounded-lg py-2`}
+      className={`border rounded-3xl ${preview ? 'bg-white' : ''} ${
+        uid === selectedUid
+          ? 'border-2 border-dashed border-blue-400'
+          : 'border-gray-200'
+      }  rounded-[8px] py-2`}
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-5">
@@ -65,7 +70,7 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
               // className="h-5 w-5 text-red-300 hover:text-red-700 cursor-pointer transition-colors"
               onClick={(e) => {
                 e.stopPropagation(); // ← Prevents drag
-                onDelete?.(uid); // ← Calls parent delete
+                onDelete; // ← Calls parent delete
               }}
             />
           </div>

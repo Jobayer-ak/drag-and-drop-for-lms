@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 const EditZoneContainer = () => {
   return (
-    <div>
+    <div className="hide-scrollbar">
       <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-md font-semibold">
         Question
       </h3>

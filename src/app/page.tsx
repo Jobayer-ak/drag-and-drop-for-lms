@@ -102,8 +102,8 @@ export default function Home() {
       sensors={sensors}
       onDragEnd={handleDragEnd}
     >
-      <div className="h-screen bg-white flex flex-row  gap-12 px-8 py-4 overflow-hidden">
-        <aside className="basis-sm rounded-md overflow-y-auto max-h-full hide-scrollbar">
+      <div className="min-h-screen overflow-hidden bg-white flex flex-row  gap-12 px-8 py-4">
+        <aside className="basis-sm rounded-md min-h-screen overflow-y-auto hide-scrollbar">
           <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-lg font-semibold">
             Form Elements
           </h3>
@@ -119,10 +119,10 @@ export default function Home() {
               </div>
             ))}
         </aside>
-        <main className="basis-2xl border border-gray-200 rounded-[8px] p-6 mt-5 overflow-hidden">
+        <main className="basis-2xl min-h-screen overflow-y-auto hide-scrollbar">
           <DropZoneContainer />
         </main>
-        <aside className="basis-sm border border-gray-200">
+        <aside className="basis-sm border border-gray-200 min-h-screen overflow-y-auto hide-scrollbar">
           <EditZoneContainer />
         </aside>
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import { useQuestionBuilder } from '../../../store/questionBuilder';
 import { ComponentNameProps } from '../../../types/types';
 import { Badge } from '../../ui/badge';
 import {
@@ -21,17 +22,23 @@ const TrueFalse: React.FC<ComponentNameProps> = ({
   uid,
   dragHandleProps,
   preview,
+
   onDelete,
   onEdit,
 }) => {
   const options = ['True', 'False'];
-  const [selected, setSelected] = useState<string | undefined>(undefined);
+
+  const [selected, setSelected] = useState('');
+
+  const { selectedUid } = useQuestionBuilder();
 
   return (
     <Card
-      className={`border ${
-        preview ? 'bg-white' : ''
-      } border-gray-200 rounded-lg py-2`}
+      className={`border rounded-3xl ${preview ? 'bg-white' : ''} ${
+        uid === selectedUid
+          ? 'border-2 border-dashed border-blue-400'
+          : 'border-gray-200'
+      }  rounded-[8px] py-2`}
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-5">

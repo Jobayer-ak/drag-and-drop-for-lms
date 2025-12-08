@@ -22,7 +22,7 @@ export const DeleteConfirm: React.FC<DeleteConfirmProps> = ({
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
-      <AlertDialogContent className="bg-white border border-gray-200  shadow-lg rounded-lg w-[40%] max-w-xs p-5">
+      <AlertDialogContent className="bg-white border border-gray-200  shadow-lg rounded-lg p-5">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-gray-900 text-lg font-semibold">
             Are you sure?

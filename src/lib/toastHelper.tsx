@@ -9,7 +9,7 @@ export const GlobalToaster = () => (
     position="top-center"
     richColors
     toastOptions={{
-      duration: 5000,
+      duration: 3000,
       style: {
         background: '#ffffff',
         borderRadius: '0.5rem',
