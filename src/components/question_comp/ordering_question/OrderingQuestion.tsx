@@ -80,7 +80,11 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
               >
                 <div className="flex items-center gap-3 text-gray-400 py-1">
                   {/* Drag handle for individual option inside card if needed */}
-                  <MdOutlineDragIndicator className="h-4 w-4 text-gray-400" />
+
+                  <MdOutlineDragIndicator
+                    className="h-4 w-4 text-gray-400"
+                    {...dragHandleProps}
+                  />
                   <span
                     className="flex items-center justify-center w-6 h-6 bg-gray-300 text-gray-500 
                     text-xs font-medium rounded-full"

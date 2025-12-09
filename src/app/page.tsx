@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
@@ -9,12 +10,14 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 import DraggableQuestions from '../components/draggable/DraggableQuestions';
 import DropZoneContainer from '../components/drop-zone/DropZoneContainer';
 import EditZoneContainer from '../components/edit-zone/EditZoneContainer';
 import DragPreview from '../components/preview/DragPreview';
 import { ICON_MAP } from '../components/question-items/QItem';
+import SortingPreview from '../components/sortable/SortingPreview';
 import { showSuccess } from '../lib/toastHelper';
 import { useQuestionBuilder } from '../store/questionBuilder';
 
@@ -66,37 +69,71 @@ const items = [
 export default function Home() {
   const [mounted, setMounted] = useState<boolean>(false);
 
-  const { activeItem, setActiveItem, addDroppedItem, droppedItems } =
-    useQuestionBuilder();
+  const [sortAcitveDrag, setSortActiveDrag] = useState<string | null>(null);
+
+  const {
+    activeItem,
+    setActiveItem,
+    addDroppedItem,
+    droppedItems,
+    moveDroppedItemByUid,
+  } = useQuestionBuilder();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // console.log('current active item: ', activeItem);
+
   const handleDragStart = (event: DragStartEvent) => {
-    const id = event.active.id;
-    const found = items.find((i) => i.id === id);
-    setActiveItem(found ?? null);
+    const { active } = event;
+    const type = active.data.current?.type;
+
+    console.log('event afsafasd: ', active);
+
+    if (type === 'sortable-item') {
+      // This is an already dropped item being dragged
+      setSortActiveDrag(String(active?.id));
+      setActiveItem(null); // no activeItem from left panel
+    } else {
+      // This is a new item from the left palette
+      const found = items.find((i) => i.id === active.id);
+      setActiveItem(found ?? null);
+      setSortActiveDrag(null);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { over } = event;
+    const { active, over } = event;
 
-    if (!over || !activeItem) {
+    if (!over) {
       setActiveItem(null);
       return;
     }
 
+    const activeId = String(active.id);
     const overId = String(over.id);
 
-    if (overId.startsWith('slot-')) {
-      // Insert into highlighted gap
-      const index = Number(overId.split('-')[1]);
-      addDroppedItem(activeItem, index);
-      showSuccess(`${activeItem.name} question added successfully!`);
-    } else if (overId === 'DROP_ZONE') {
-      // fallback: drop at end if drop zone empty
-      addDroppedItem(activeItem);
+    //Reorder existing items
+    if (active.data.current?.type === 'sortable-item') {
+      const fromUid = activeId;
+      const newIndex = droppedItems.findIndex((i) => i.uid === overId);
+
+      if (newIndex !== -1) {
+        moveDroppedItemByUid(fromUid, newIndex);
+      }
+      return;
+    }
+
+    // Add new item from the left palette
+    if (activeItem) {
+      if (overId.startsWith('slot-')) {
+        const index = Number(overId.split('-')[1]);
+        addDroppedItem(activeItem, index);
+      } else if (overId === 'DROP_ZONE') {
+        addDroppedItem(activeItem);
+      }
+
       showSuccess(`${activeItem.name} question added successfully!`);
     }
 
@@ -111,11 +148,15 @@ export default function Home() {
     })
   );
 
+  console.log('again tyep: ', sortAcitveDrag);
+
   return (
     <DndContext
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      collisionDetection={closestCenter}
+      modifiers={sortAcitveDrag ? [restrictToVerticalAxis] : []}
     >
       <div className="min-h-screen overflow-hidden bg-white flex flex-row gap-12 px-8 py-4">
         {/* Left palette */}
@@ -154,7 +195,9 @@ export default function Home() {
               heading={activeItem.name}
               description={activeItem.description}
             />
-          ) : null}
+          ) : (
+            sortAcitveDrag && <SortingPreview previewId={sortAcitveDrag} />
+          )}
         </DragOverlay>
       </div>
     </DndContext>

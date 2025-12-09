@@ -22,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
 const MultipleChoice: React.FC<ComponentNameProps> = ({
   uid,
   dragHandleProps,
-  preview,
+  preview = false,
   onDelete,
   onEdit,
 }) => {
@@ -38,11 +38,14 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
           ? 'border-2 border-dashed border-blue-400'
           : 'border-gray-200'
       }  rounded-[8px] py-2 cursor-pointer`}
-      onClick={() => onEdit?.(uid)}
+      onClick={() => !preview && onEdit?.(uid)}
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-5">
-          <MdOutlineDragIndicator className="h-6 w-6 text-gray-400 cursor-move" />
+          <MdOutlineDragIndicator
+            className="h-6 w-6 text-gray-400 cursor-move"
+            {...dragHandleProps}
+          />
           Multiple Choice Question
         </CardTitle>
         <CardAction>

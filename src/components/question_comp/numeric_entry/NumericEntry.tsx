@@ -21,7 +21,6 @@ const NumericEntry: React.FC<ComponentNameProps> = ({
   uid,
   dragHandleProps,
   preview,
-
   onDelete,
   onEdit,
 }) => {

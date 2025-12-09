@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// /store/questionBuilder.ts
+
+import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
@@ -10,11 +11,13 @@ export interface QuestionItem {
   name: string;
   description: string;
   icon: string;
+  type?: string | null;
 }
 
 export interface DroppedQuestion extends QuestionItem {
   uid: string; // unique instance id
   data?: any; // for question-specific data (options, selected, points, etc.)
+  type?: string;
 }
 
 interface QuestionBuilderStore {
@@ -24,7 +27,9 @@ interface QuestionBuilderStore {
 
   // actions
   setActiveItem: (item: QuestionItem | null) => void;
-  addDroppedItem: (item: QuestionItem) => boolean;
+  moveDroppedItemByUid: (fromUid: string, toIndex: number) => void;
+  reorderDroppedItems: (item: DroppedQuestion[]) => void;
+  addDroppedItem: (item: QuestionItem, index?: number) => boolean;
   duplicateDroppedItem: (uid: string) => string | null;
   deleteDroppedItem: (uid: string) => void;
   selectDroppedItem: (uid: string) => void;
@@ -44,9 +49,32 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
         });
       },
 
+      moveDroppedItemByUid: (fromUid, toIndex) => {
+        set((state) => {
+          const fromIndex = state.droppedItems.findIndex(
+            (i) => i.uid === fromUid
+          );
+          if (fromIndex === -1) return;
+          state.droppedItems = arrayMove(
+            state.droppedItems,
+            fromIndex,
+            toIndex
+          );
+        });
+      },
+
+      reorderDroppedItems: (items: DroppedQuestion[]) => {
+        set({ droppedItems: items });
+      },
+
       addDroppedItem: (item, index?: number) => {
         set((state) => {
-          const newItem: DroppedQuestion = { ...item, uid: uuidv4(), data: {} };
+          const newItem: DroppedQuestion = {
+            ...item,
+            uid: uuidv4(),
+            data: {},
+            type: 'sortable-item',
+          };
           if (
             typeof index === 'number' &&
             index >= 0 &&

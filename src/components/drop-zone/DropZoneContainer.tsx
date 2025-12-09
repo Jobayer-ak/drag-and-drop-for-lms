@@ -1,19 +1,16 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useEffect, useRef, useState } from 'react';
 import { PiArrowsOut } from 'react-icons/pi';
 import { showSuccess } from '../../lib/toastHelper';
-import {
-  DroppedQuestion,
-  useQuestionBuilder,
-} from '../../store/questionBuilder';
+import { useQuestionBuilder } from '../../store/questionBuilder';
 import { DeleteConfirm } from '../DeleteConfirm';
-import MultipleChoice from '../question_comp/multiple_choice/MultipleChoice';
-import { MultipleSelect } from '../question_comp/multiple_select/MultipleSelect';
-import NumericEntry from '../question_comp/numeric_entry/NumericEntry';
-import OrderingQuestion from '../question_comp/ordering_question/OrderingQuestion';
-import TrueFalse from '../question_comp/true_false/TrueFalse';
+import SortableItem from '../sortable/Sortabletem';
 
 const DropGap = ({
   id,
@@ -41,25 +38,19 @@ const DropGap = ({
 
 const DropZoneContainer = () => {
   const [pendingDeleteUid, setPendingDeleteUid] = useState<string | null>(null);
-  const [selected, setSelected] = useState<boolean>(false);
 
   const { setNodeRef } = useDroppable({ id: 'DROP_ZONE' });
-  const { droppedItems, deleteDroppedItem, selectDroppedItem } =
-    useQuestionBuilder();
+  const { droppedItems, deleteDroppedItem } = useQuestionBuilder();
 
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [containerHeight, setContainerHeight] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // console.log('item ref: ', containerRef?.current?.getBoundingClientRect());
 
   useEffect(() => {
     if (containerRef.current) {
       setContainerHeight(containerRef.current.getBoundingClientRect().height);
     }
   }, [droppedItems]);
-
-  // console.log('container height: ', containerRef);
 
   const handleDeleteConfirm = () => {
     if (pendingDeleteUid) {
@@ -70,30 +61,6 @@ const DropZoneContainer = () => {
   };
   const handleDeleteCancel = () => setPendingDeleteUid(null);
 
-  const renderQuestion = (item: DroppedQuestion) => {
-    const commonProps = {
-      uid: item.uid,
-      onEdit: () => selectDroppedItem(item.uid),
-      onDelete: () => setPendingDeleteUid(item.uid),
-    };
-
-    switch (item?.id) {
-      case 'MultipleChoice':
-        return <MultipleChoice key={item.uid} {...commonProps} />;
-      case 'MultipleSelect':
-        return <MultipleSelect key={item.uid} {...commonProps} />;
-      case 'TrueFalse':
-        return <TrueFalse key={item.uid} {...commonProps} />;
-      case 'Numeric':
-        return <NumericEntry key={item.uid} {...commonProps} />;
-      case 'Ordering':
-        return <OrderingQuestion key={item.uid} {...commonProps} />;
-      default:
-        return null;
-    }
-  };
-
-  // Calculate remaining empty area below last item
   const getBottomGapHeight = () => {
     if (!containerRef.current) return 48;
     const lastItem = Array.from(itemRefs.current.values()).pop();
@@ -103,8 +70,6 @@ const DropZoneContainer = () => {
     return containerRect.bottom - rect.bottom;
   };
 
-  console.log('dynamic space: ', getBottomGapHeight());
-
   return (
     <div
       ref={(el) => {
@@ -112,44 +77,52 @@ const DropZoneContainer = () => {
         setNodeRef(el);
       }}
       id="drop_zone"
-      className="flex flex-col gap-0 p-8 bg-white border border-gray-200 h-screen overflow-y-auto hide-scrollbar rounded-[8px]"
+      className="relative flex flex-col gap-0 p-8 bg-white border border-gray-200 h-screen overflow-y-auto hide-scrollbar rounded-[8px]"
     >
-      {droppedItems.length > 0 ? (
-        <div className="flex flex-col w-full">
-          {/* Top gap */}
-          <DropGap id="slot-0" />
+      <SortableContext
+        strategy={verticalListSortingStrategy}
+        items={droppedItems.map((item) => item.uid)}
+      >
+        {droppedItems.length > 0 ? (
+          <div className="flex flex-col w-full">
+            {/* Top gap */}
+            <DropGap id="slot-0" />
 
-          {droppedItems.map((item, index) => (
-            <div
-              key={item.uid}
-              ref={(el) => {
-                if (el) itemRefs.current.set(item.uid, el);
-              }}
-              className="relative flex flex-col w-full gap-0"
-            >
-              {renderQuestion(item)}
-              {/* Gap after this item */}
-              <DropGap id={`slot-${index + 1}`} />
-            </div>
-          ))}
+            {droppedItems.map((item, index) => (
+              <div
+                key={item.uid}
+                ref={(el) => {
+                  if (el) itemRefs.current.set(item.uid, el);
+                }}
+                className="relative flex flex-col w-full gap-0"
+              >
+                <SortableItem
+                  item={item}
+                  setPendingDeleteUid={setPendingDeleteUid}
+                />
+                {/* Gap after this item */}
+                <DropGap id={`slot-${index + 1}`} />
+              </div>
+            ))}
 
-          {/* Bottom gap */}
-          <DropGap
-            id={`slot-${droppedItems.length}`}
-            height={getBottomGapHeight()}
-          />
-        </div>
-      ) : (
-        // Empty drop zone
-        <DropGap id={'slot-0'} height={containerHeight}>
-          <div className="h-full flex flex-col items-center justify-center gap-2 rounded-[8px] border-2 border-dashed border-gray-700">
-            <PiArrowsOut className="h-25 w-25 text-gray-400" />
-            <h4 className="text-gray-400 font-semibold text-lg">
-              Drag and Drop Questions Here
-            </h4>
+            {/* Bottom gap */}
+            <DropGap
+              id={`slot-${droppedItems.length}`}
+              height={getBottomGapHeight()}
+            />
           </div>
-        </DropGap>
-      )}
+        ) : (
+          // Empty drop zone
+          <DropGap id={'slot-0'} height={containerHeight}>
+            <div className="min-h-screen flex flex-col items-center justify-center gap-2 rounded-[8px] border-2 border-dashed border-gray-700">
+              <PiArrowsOut className="h-25 w-25 text-gray-400" />
+              <h4 className="text-gray-400 font-semibold text-lg">
+                Drag and Drop Questions Here
+              </h4>
+            </div>
+          </DropGap>
+        )}
+      </SortableContext>
 
       {pendingDeleteUid && (
         <DeleteConfirm

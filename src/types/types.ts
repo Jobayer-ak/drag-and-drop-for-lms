@@ -24,5 +24,5 @@ export interface ComponentNameProps {
   preview?: boolean;
   dragHandleProps?: any;
   onDelete?: (uid: string) => void;
-  onEdit: (uid: string) => void;
+  onEdit?: (uid: string) => void;
 }
