@@ -65,11 +65,13 @@ const items = [
 
 export default function Home() {
   const [mounted, setMounted] = useState<boolean>(false);
-  const { activeItem, addDroppedItem, setActiveItem } = useQuestionBuilder();
+
+  const { activeItem, setActiveItem, addDroppedItem, droppedItems } =
+    useQuestionBuilder();
 
   useEffect(() => {
     setMounted(true);
-  }, [mounted]);
+  }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     const id = event.active.id;
@@ -80,31 +82,45 @@ export default function Home() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { over } = event;
 
-    if (over?.id === 'DROP_ZONE' && activeItem) {
-      if (addDroppedItem(activeItem))
-        showSuccess(`${event?.active?.id} question added successfully!`);
+    if (!over || !activeItem) {
+      setActiveItem(null);
+      return;
     }
 
-    setActiveItem(null); // Reset preview
+    const overId = String(over.id);
+
+    if (overId.startsWith('slot-')) {
+      // Insert into highlighted gap
+      const index = Number(overId.split('-')[1]);
+      addDroppedItem(activeItem, index);
+      showSuccess(`${activeItem.name} question added successfully!`);
+    } else if (overId === 'DROP_ZONE') {
+      // fallback: drop at end if drop zone empty
+      addDroppedItem(activeItem);
+      showSuccess(`${activeItem.name} question added successfully!`);
+    }
+
+    setActiveItem(null);
   };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 8px movement required to start drag (prevents accidental drags)
+        distance: 8, // prevent accidental drags
       },
     })
   );
 
   return (
     <DndContext
-      onDragStart={handleDragStart}
       sensors={sensors}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="min-h-screen overflow-hidden bg-white flex flex-row  gap-12 px-8 py-4">
+      <div className="min-h-screen overflow-hidden bg-white flex flex-row gap-12 px-8 py-4">
+        {/* Left palette */}
         <aside className="basis-sm rounded-md min-h-screen overflow-y-auto hide-scrollbar">
-          <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-lg font-semibold">
+          <h3 className="bg-gray-200 text-gray-700 text-center py-4 text-lg font-semibold">
             Form Elements
           </h3>
           {mounted &&
@@ -119,16 +135,20 @@ export default function Home() {
               </div>
             ))}
         </aside>
+
+        {/* Drop Zone */}
         <main className="basis-2xl min-h-screen overflow-y-auto hide-scrollbar">
           <DropZoneContainer />
         </main>
+
+        {/* Right edit panel */}
         <aside className="basis-sm border border-gray-200 min-h-screen overflow-y-auto hide-scrollbar">
           <EditZoneContainer />
         </aside>
 
+        {/* Drag preview overlay */}
         <DragOverlay>
           {activeItem ? (
-            // render a PRESENTATIONAL preview (no useDraggable inside)
             <DragPreview
               leftIcon={ICON_MAP[activeItem.icon]}
               heading={activeItem.name}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import { showSuccess } from '../../../lib/toastHelper';
 import { useQuestionBuilder } from '../../../store/questionBuilder';
 import { ComponentNameProps } from '../../../types/types';
 import { Badge } from '../../ui/badge';
@@ -28,7 +29,7 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
   const [selected, setSelected] = useState(false);
   const options = ['Option 1', 'Option 2', 'Option 3'];
 
-  const { selectedUid, droppedItems } = useQuestionBuilder();
+  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
 
   return (
     <Card
@@ -36,7 +37,8 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
         uid === selectedUid
           ? 'border-2 border-dashed border-blue-400'
           : 'border-gray-200'
-      }  rounded-[8px] py-2`}
+      }  rounded-[8px] py-2 cursor-pointer`}
+      onClick={() => onEdit?.(uid)}
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-5">
@@ -49,15 +51,17 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
               className="h-5 w-5 text-gray-400 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
-                onEdit?.(uid);
+                const newUid = duplicateDroppedItem(uid);
+                if (newUid) {
+                  showSuccess('Multiple choice question duplicated!');
+                }
               }}
             />
             <RiDeleteBinLine
               className="h-5 w-5 text-gray-400 cursor-pointer"
-              // className="h-5 w-5 text-red-500 hover:text-red-700 cursor-pointer transition-colors"
               onClick={(e) => {
-                e.stopPropagation(); // ← Prevents drag
-                onDelete?.(uid); // ← Calls parent delete
+                e.stopPropagation();
+                onDelete?.(uid);
               }}
             />
           </div>

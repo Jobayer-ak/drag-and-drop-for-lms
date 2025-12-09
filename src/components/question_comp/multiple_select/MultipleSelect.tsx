@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 'use client';
 
 import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import { showSuccess } from '../../../lib/toastHelper';
 import { useQuestionBuilder } from '../../../store/questionBuilder';
 import { ComponentNameProps } from '../../../types/types';
 import { Badge } from '../../ui/badge';
@@ -30,7 +30,7 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
   const options = ['Option 1', 'Option 2', 'Option 3'];
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
-  const { selectedUid } = useQuestionBuilder();
+  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
 
   const handleChange = (option: string) => {
     setCheckedItems((prev) => ({
@@ -45,14 +45,15 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
         uid === selectedUid
           ? 'border-2 border-dashed border-blue-400'
           : 'border-gray-200'
-      }  rounded-[8px] py-2`}
+      }  rounded-[8px] py-2 cursor-pointer`}
+      onClick={() => onEdit?.(uid)}
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-5">
           {/* Drag starts only when grabbing this icon */}
           <MdOutlineDragIndicator
             className="h-6 w-6 text-gray-400 cursor-move focus:outline-none focus:ring-0"
-            {...dragHandleProps} // <-- attach listeners here
+            {...dragHandleProps}
           />
           Multiple Select Question
         </CardTitle>
@@ -61,16 +62,18 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
             <FiCopy
               className="h-5 w-5 text-gray-400 cursor-pointer"
               onClick={(e) => {
-                e.stopPropagation(); // ← Prevents drag
-                onEdit?.(uid); // ← Calls parent delete
+                e.stopPropagation();
+                const newUid = duplicateDroppedItem(uid);
+                if (newUid) {
+                  showSuccess('Multiple selector question duplicated!');
+                }
               }}
             />
             <RiDeleteBinLine
               className="h-5 w-5 text-gray-400 cursor-pointer"
-              // className="h-5 w-5 text-red-300 hover:text-red-700 cursor-pointer transition-colors"
               onClick={(e) => {
-                e.stopPropagation(); // ← Prevents drag
-                onDelete; // ← Calls parent delete
+                e.stopPropagation();
+                onDelete?.(uid);
               }}
             />
           </div>

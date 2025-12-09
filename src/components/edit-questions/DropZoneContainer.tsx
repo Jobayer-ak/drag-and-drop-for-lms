@@ -15,17 +15,8 @@ import NumericEntry from '../question_comp/numeric_entry/NumericEntry';
 import OrderingQuestion from '../question_comp/ordering_question/OrderingQuestion';
 import TrueFalse from '../question_comp/true_false/TrueFalse';
 
-const DropGap = ({
-  id,
-  height,
-  children,
-}: {
-  id: string;
-  height?: number;
-  children?: React.ReactNode;
-}) => {
+const DropGap = ({ id, height }: { id: string; height?: number }) => {
   const { setNodeRef, isOver } = useDroppable({ id });
-
   return (
     <div
       ref={setNodeRef}
@@ -33,9 +24,7 @@ const DropGap = ({
         isOver ? 'bg-blue-200 border-2 border-blue-400' : ''
       }`}
       style={{ minHeight: height ?? 48 }}
-    >
-      {children}
-    </div>
+    />
   );
 };
 
@@ -72,22 +61,25 @@ const DropZoneContainer = () => {
 
   const renderQuestion = (item: DroppedQuestion) => {
     const commonProps = {
+      key: item.uid,
       uid: item.uid,
+      selected,
+      setSelected,
       onEdit: () => selectDroppedItem(item.uid),
       onDelete: () => setPendingDeleteUid(item.uid),
     };
 
     switch (item?.id) {
       case 'MultipleChoice':
-        return <MultipleChoice key={item.uid} {...commonProps} />;
+        return <MultipleChoice {...commonProps} />;
       case 'MultipleSelect':
-        return <MultipleSelect key={item.uid} {...commonProps} />;
+        return <MultipleSelect {...commonProps} />;
       case 'TrueFalse':
-        return <TrueFalse key={item.uid} {...commonProps} />;
+        return <TrueFalse {...commonProps} />;
       case 'Numeric':
-        return <NumericEntry key={item.uid} {...commonProps} />;
+        return <NumericEntry {...commonProps} />;
       case 'Ordering':
-        return <OrderingQuestion key={item.uid} {...commonProps} />;
+        return <OrderingQuestion {...commonProps} />;
       default:
         return null;
     }
@@ -112,7 +104,7 @@ const DropZoneContainer = () => {
         setNodeRef(el);
       }}
       id="drop_zone"
-      className="flex flex-col gap-0 p-8 bg-white border border-gray-200 h-screen overflow-y-auto hide-scrollbar rounded-[8px]"
+      className="flex flex-col gap-0 bg-white border h-screen overflow-y-auto hide-scrollbar rounded-[8px] p-4"
     >
       {droppedItems.length > 0 ? (
         <div className="flex flex-col w-full">
@@ -141,10 +133,10 @@ const DropZoneContainer = () => {
         </div>
       ) : (
         // Empty drop zone
-        <DropGap id={'slot-0'} height={containerHeight}>
-          <div className="h-full flex flex-col items-center justify-center gap-2 rounded-[8px] border-2 border-dashed border-gray-700">
+        <DropGap id="slot-0" height={containerHeight}>
+          <div className="flex flex-col items-center justify-center gap-2 py-10 h-full">
             <PiArrowsOut className="h-25 w-25 text-gray-400" />
-            <h4 className="text-gray-400 font-semibold text-lg">
+            <h4 className="text-gray-800 font-semibold text-lg">
               Drag and Drop Questions Here
             </h4>
           </div>

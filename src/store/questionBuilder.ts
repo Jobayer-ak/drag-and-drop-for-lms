@@ -25,6 +25,7 @@ interface QuestionBuilderStore {
   // actions
   setActiveItem: (item: QuestionItem | null) => void;
   addDroppedItem: (item: QuestionItem) => boolean;
+  duplicateDroppedItem: (uid: string) => string | null;
   deleteDroppedItem: (uid: string) => void;
   selectDroppedItem: (uid: string) => void;
   updateDroppedItem: (uid: string, newData: Partial<DroppedQuestion>) => void;
@@ -43,17 +44,44 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
         });
       },
 
-      addDroppedItem: (item) => {
-        // const exists = get().droppedItems.find((q) => q.id === item.id);
-
+      addDroppedItem: (item, index?: number) => {
         set((state) => {
-          state.droppedItems.push({
-            ...item,
-            uid: uuidv4(),
-            data: {}, // initialize empty data
-          });
+          const newItem: DroppedQuestion = { ...item, uid: uuidv4(), data: {} };
+          if (
+            typeof index === 'number' &&
+            index >= 0 &&
+            index <= state.droppedItems.length
+          ) {
+            state.droppedItems.splice(index, 0, newItem);
+          } else {
+            state.droppedItems.push(newItem);
+          }
         });
         return true;
+      },
+
+      duplicateDroppedItem: (uid) => {
+        let newUid: string | null = null;
+
+        set((state) => {
+          const index = state.droppedItems.findIndex((q) => q.uid === uid);
+          if (index === -1) return;
+
+          const original = state.droppedItems[index];
+
+          const duplicated: DroppedQuestion = {
+            ...original,
+            uid: uuidv4(),
+            data: { ...original.data },
+          };
+
+          newUid = duplicated.uid;
+
+          state.droppedItems.splice(index + 1, 0, duplicated);
+          state.selectedUid = duplicated.uid;
+        });
+
+        return newUid;
       },
 
       deleteDroppedItem: (uid) => {
