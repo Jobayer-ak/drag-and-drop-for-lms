@@ -6,6 +6,7 @@ import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { showSuccess } from '../../../lib/toastHelper';
 import { useQuestionBuilder } from '../../../store/questionBuilder';
+import { useQuestionStore } from '../../../store/questionEditor';
 import { ComponentNameProps } from '../../../types/types';
 import { Badge } from '../../ui/badge';
 import {
@@ -27,11 +28,11 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
   onEdit,
 }) => {
   const [selected, setSelected] = useState(false);
-  const options = ['Option 1', 'Option 2', 'Option 3'];
 
   const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
+  const { MultipleChoice } = useQuestionStore();
 
-  // console.log('from store: ', selectedUid);
+  const { options } = MultipleChoice;
 
   return (
     <Card
@@ -75,20 +76,22 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
 
       <CardContent>
         <RadioGroup
-          value={selected}
-          onValueChange={setSelected}
+          // value={selected}
+          // onValueChange={setSelected}
           className="px-1 text-gray-400"
         >
-          {options.map((option, index) => {
+          {MultipleChoice.options?.map((option, index) => {
             const id = `${uid}-option-${index}`;
             return (
-              <div key={id} className="flex items-center gap-3">
+              <div key={option.id} className="flex items-center gap-3">
                 <RadioGroupItem
-                  value={option}
+                  value={option.text}
+                  checked={option.isCorrect}
+                  // onChange={}
                   id={id}
                   className="border border-gray-400"
                 />
-                <Label htmlFor={id}>{option}</Label>
+                <Label htmlFor={id}>{option.text}</Label>
               </div>
             );
           })}
@@ -98,7 +101,7 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          Multiple Choice 1 Point
+          Multiple Choice {MultipleChoice.points} Point
         </Badge>
       </CardFooter>
     </Card>

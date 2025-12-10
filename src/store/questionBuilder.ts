@@ -3,7 +3,7 @@
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 export interface QuestionItem {
@@ -40,114 +40,128 @@ interface QuestionBuilderStore {
 
 export const useQuestionBuilder = create<QuestionBuilderStore>()(
   devtools(
-    immer((set, get) => ({
-      activeItem: null,
-      droppedItems: [],
-      selectedUid: null,
+    persist(
+      immer((set, get) => ({
+        activeItem: null,
+        droppedItems: [],
+        selectedUid: null,
 
-      setActiveItem: (item) => {
-        set((state) => {
-          state.activeItem = item;
-        });
-      },
+        setActiveItem: (item) => {
+          set((state) => {
+            state.activeItem = item;
+          });
+        },
 
-      moveDroppedItemByUid: (fromUid, toIndex) => {
-        set((state) => {
-          const fromIndex = state.droppedItems.findIndex(
-            (i) => i.uid === fromUid
-          );
-          if (fromIndex === -1) return;
-          state.droppedItems = arrayMove(
-            state.droppedItems,
-            fromIndex,
-            toIndex
-          );
-        });
-      },
+        moveDroppedItemByUid: (fromUid, toIndex) => {
+          set((state) => {
+            const fromIndex = state.droppedItems.findIndex(
+              (i) => i.uid === fromUid
+            );
+            if (fromIndex === -1) return;
+            state.droppedItems = arrayMove(
+              state.droppedItems,
+              fromIndex,
+              toIndex
+            );
+          });
+        },
 
-      reorderDroppedItems: (items: DroppedQuestion[]) => {
-        set({ droppedItems: items });
-      },
+        reorderDroppedItems: (items: DroppedQuestion[]) => {
+          set({ droppedItems: items });
+        },
 
-      addDroppedItem: (item: QuestionItem, index?: number) => {
-        let created: DroppedQuestion | null = null;
+        addDroppedItem: (item: QuestionItem, index?: number) => {
+          let created: DroppedQuestion | null = null;
 
-        set((state) => {
-          const newItem: DroppedQuestion = {
-            ...item,
-            uid: uuidv4(),
-            data: {},
-            type: 'sortable-item',
-          };
-
-          created = newItem; // store for return
-
-          if (
-            typeof index === 'number' &&
-            index >= 0 &&
-            index <= state.droppedItems.length
-          ) {
-            state.droppedItems.splice(index, 0, newItem);
-          } else {
-            state.droppedItems.push(newItem);
-          }
-        });
-
-        return created;
-      },
-
-      lastDroppedItem: null,
-      setLastDroppedItem: (item: DroppedQuestion) =>
-        set(() => ({ lastDroppedItem: item })),
-
-      duplicateDroppedItem: (uid) => {
-        let newUid: string | null = null;
-
-        set((state) => {
-          const index = state.droppedItems.findIndex((q) => q.uid === uid);
-          if (index === -1) return;
-
-          const original = state.droppedItems[index];
-
-          const duplicated: DroppedQuestion = {
-            ...original,
-            uid: uuidv4(),
-            data: { ...original.data },
-          };
-
-          newUid = duplicated.uid;
-
-          state.droppedItems.splice(index + 1, 0, duplicated);
-          state.selectedUid = duplicated.uid;
-        });
-
-        return newUid;
-      },
-
-      deleteDroppedItem: (uid) => {
-        set((state) => {
-          state.droppedItems = state.droppedItems.filter((q) => q.uid !== uid);
-          if (state.selectedUid === uid) state.selectedUid = null;
-        });
-      },
-
-      selectDroppedItem: (uid) => {
-        set((state) => {
-          state.selectedUid = uid;
-        });
-      },
-
-      updateDroppedItem: (uid, newData) => {
-        set((state) => {
-          const index = state.droppedItems.findIndex((q) => q.uid === uid);
-          if (index !== -1) {
-            state.droppedItems[index] = {
-              ...state.droppedItems[index],
-              ...newData,
+          set((state) => {
+            const newItem: DroppedQuestion = {
+              ...item,
+              uid: uuidv4(),
+              data: {},
+              type: 'sortable-item',
             };
-          }
-        });
-      },
-    }))
+
+            created = newItem; // store for return
+
+            if (
+              typeof index === 'number' &&
+              index >= 0 &&
+              index <= state.droppedItems.length
+            ) {
+              state.droppedItems.splice(index, 0, newItem);
+            } else {
+              state.droppedItems.push(newItem);
+            }
+          });
+
+          return created;
+        },
+
+        lastDroppedItem: null,
+        setLastDroppedItem: (item: DroppedQuestion) =>
+          set(() => ({ lastDroppedItem: item })),
+
+        duplicateDroppedItem: (uid) => {
+          let newUid: string | null = null;
+
+          set((state) => {
+            const index = state.droppedItems.findIndex((q) => q.uid === uid);
+            if (index === -1) return;
+
+            const original = state.droppedItems[index];
+
+            const duplicated: DroppedQuestion = {
+              ...original,
+              uid: uuidv4(),
+              data: { ...original.data },
+            };
+
+            newUid = duplicated.uid;
+
+            state.droppedItems.splice(index + 1, 0, duplicated);
+            state.selectedUid = duplicated.uid;
+          });
+
+          return newUid;
+        },
+
+        deleteDroppedItem: (uid) => {
+          set((state) => {
+            state.droppedItems = state.droppedItems.filter(
+              (q) => q.uid !== uid
+            );
+
+            // Clear selectedUid if deleted
+            if (state.selectedUid === uid) state.selectedUid = null;
+
+            // Clear lastDroppedItem if deleted
+            if (state.lastDroppedItem?.uid === uid)
+              state.lastDroppedItem = null;
+          });
+        },
+
+        selectDroppedItem: (uid) => {
+          set((state) => {
+            state.selectedUid = uid;
+          });
+        },
+
+        updateDroppedItem: (uid, newData) => {
+          set((state) => {
+            const index = state.droppedItems.findIndex((q) => q.uid === uid);
+            if (index !== -1) {
+              state.droppedItems[index] = {
+                ...state.droppedItems[index],
+                ...newData,
+              };
+            }
+          });
+        },
+      })),
+
+      {
+        name: 'question-builder-storage',
+      }
+    )
   )
 );
