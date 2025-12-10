@@ -31,6 +31,8 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
 
   const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
 
+  // console.log('from store: ', selectedUid);
+
   return (
     <Card
       className={`border rounded-3xl ${preview ? 'bg-white' : ''} ${

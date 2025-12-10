@@ -1,8 +1,25 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useQuestionBuilder } from '../../store/questionBuilder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 const EditZoneContainer = () => {
+  const { selectedUid, activeItem, droppedItems, lastDroppedItem } =
+    useQuestionBuilder();
+
+  useEffect(() => {}, [selectedUid, droppedItems]);
+
+  // const currentItem = activeItem?.id || lastDroppedItem?.id;
+
+  const currentItem = selectedUid
+    ? droppedItems.find((item) => item.uid === selectedUid)?.id
+    : activeItem?.id || lastDroppedItem?.id;
+
+  // const currentSelected = droppedItems.find((item) => item.uid === selectedUid);
+
+  // console.log('selected id: ', currentSelected);
+
   return (
     <div className="hide-scrollbar">
       <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-md font-semibold">
@@ -45,6 +62,12 @@ const EditZoneContainer = () => {
           <h2>Settings</h2>
         </TabsContent>
       </Tabs>
+
+      {currentItem === 'MultipleChoice' && <h3>Multiple Choice</h3>}
+      {currentItem === 'MultipleSelect' && <h3>Multiple Select</h3>}
+      {currentItem === 'TrueFalse' && <h3>True or False</h3>}
+      {currentItem === 'Numeric' && <h3>Numeric Entry</h3>}
+      {currentItem === 'Ordering' && <h3>Ordering Question</h3>}
     </div>
   );
 };

@@ -29,7 +29,9 @@ interface QuestionBuilderStore {
   setActiveItem: (item: QuestionItem | null) => void;
   moveDroppedItemByUid: (fromUid: string, toIndex: number) => void;
   reorderDroppedItems: (item: DroppedQuestion[]) => void;
-  addDroppedItem: (item: QuestionItem, index?: number) => boolean;
+  addDroppedItem: (item: QuestionItem, index?: number) => any;
+  lastDroppedItem: null;
+  setLastDroppedItem: (item: DroppedQuestion) => void;
   duplicateDroppedItem: (uid: string) => string | null;
   deleteDroppedItem: (uid: string) => void;
   selectDroppedItem: (uid: string) => void;
@@ -67,7 +69,9 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
         set({ droppedItems: items });
       },
 
-      addDroppedItem: (item, index?: number) => {
+      addDroppedItem: (item: QuestionItem, index?: number) => {
+        let created: DroppedQuestion | null = null;
+
         set((state) => {
           const newItem: DroppedQuestion = {
             ...item,
@@ -75,6 +79,9 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
             data: {},
             type: 'sortable-item',
           };
+
+          created = newItem; // store for return
+
           if (
             typeof index === 'number' &&
             index >= 0 &&
@@ -85,8 +92,13 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
             state.droppedItems.push(newItem);
           }
         });
-        return true;
+
+        return created;
       },
+
+      lastDroppedItem: null,
+      setLastDroppedItem: (item: DroppedQuestion) =>
+        set(() => ({ lastDroppedItem: item })),
 
       duplicateDroppedItem: (uid) => {
         let newUid: string | null = null;

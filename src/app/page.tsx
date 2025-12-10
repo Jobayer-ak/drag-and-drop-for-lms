@@ -19,7 +19,7 @@ import DragPreview from '../components/preview/DragPreview';
 import { ICON_MAP } from '../components/question-items/QItem';
 import SortingPreview from '../components/sortable/SortingPreview';
 import { showSuccess } from '../lib/toastHelper';
-import { useQuestionBuilder } from '../store/questionBuilder';
+import { DroppedQuestion, useQuestionBuilder } from '../store/questionBuilder';
 
 const items = [
   {
@@ -76,6 +76,7 @@ export default function Home() {
     setActiveItem,
     addDroppedItem,
     droppedItems,
+    setLastDroppedItem,
     moveDroppedItemByUid,
   } = useQuestionBuilder();
 
@@ -125,17 +126,24 @@ export default function Home() {
       return;
     }
 
+    let newItem: DroppedQuestion | null = null;
+
     // Add new item from the left palette
     if (activeItem) {
       if (overId.startsWith('slot-')) {
         const index = Number(overId.split('-')[1]);
-        addDroppedItem(activeItem, index);
+        newItem = addDroppedItem(activeItem, index);
+        console.log('new iem: ', newItem);
       } else if (overId === 'DROP_ZONE') {
-        addDroppedItem(activeItem);
+        newItem = addDroppedItem(activeItem);
       }
 
       showSuccess(`${activeItem.name} question added successfully!`);
     }
+
+    // 2. Store the last dropped item
+
+    if (newItem) setLastDroppedItem(newItem);
 
     setActiveItem(null);
   };

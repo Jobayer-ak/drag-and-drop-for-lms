@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -36,7 +37,7 @@ const SortableItem: React.FC<SortableItemProps> = ({
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform), // ← This respects modifiers!
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 999 : 1,
@@ -47,9 +48,6 @@ const SortableItem: React.FC<SortableItemProps> = ({
   const { selectDroppedItem } = useQuestionBuilder();
 
   const renderQuestion = (item: DroppedQuestion) => {
-    // console.log('uid: ', item);
-
-    // setActiveItem(item?.type);
     const commonProps = {
       uid: item.uid,
       onEdit: () => selectDroppedItem(item.uid),
