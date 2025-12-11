@@ -1,12 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { showSuccess } from '../../../lib/toastHelper';
 import { useQuestionBuilder } from '../../../store/questionBuilder';
-import { useQuestionStore } from '../../../store/questionEditor';
 import { ComponentNameProps } from '../../../types/types';
 import { Badge } from '../../ui/badge';
 import {
@@ -27,12 +26,12 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const [selected, setSelected] = useState(false);
+  const { selectedUid, duplicateDroppedItem, droppedItems } =
+    useQuestionBuilder();
 
-  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
-  const { MultipleChoice } = useQuestionStore();
+  const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
 
-  const { options } = MultipleChoice;
+  console.log('dropped items: ', singleDroppedItem?.data?.options);
 
   return (
     <Card
@@ -80,7 +79,7 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
           // onValueChange={setSelected}
           className="px-1 text-gray-400"
         >
-          {MultipleChoice.options?.map((option, index) => {
+          {singleDroppedItem?.data?.options?.map((option: any, index: any) => {
             const id = `${uid}-option-${index}`;
             return (
               <div key={option.id} className="flex items-center gap-3">
@@ -101,7 +100,7 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          Multiple Choice {MultipleChoice.points} Point
+          Multiple Choice {singleDroppedItem?.data?.points} Point
         </Badge>
       </CardFooter>
     </Card>

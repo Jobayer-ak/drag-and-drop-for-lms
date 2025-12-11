@@ -20,6 +20,7 @@ import { ICON_MAP } from '../components/question-items/QItem';
 import SortingPreview from '../components/sortable/SortingPreview';
 import { showSuccess } from '../lib/toastHelper';
 import { DroppedQuestion, useQuestionBuilder } from '../store/questionBuilder';
+import { QuestionType, useQuestionStore } from '../store/questionEditor';
 
 const items = [
   {
@@ -66,6 +67,16 @@ const items = [
   },
 ];
 
+const questionsName = [
+  'MultipleChoice',
+  'MultipleSelect',
+  'TrueFalse',
+  'FillBlank',
+  'Matching',
+  'Numeric',
+  'Ordering',
+];
+
 export default function Home() {
   const [mounted, setMounted] = useState<boolean>(false);
 
@@ -79,6 +90,9 @@ export default function Home() {
     setLastDroppedItem,
     moveDroppedItemByUid,
   } = useQuestionBuilder();
+
+  const { MultipleChoice, getQuestion } = useQuestionStore();
+  const { options, q_id } = MultipleChoice;
 
   useEffect(() => {
     setMounted(true);
@@ -115,6 +129,8 @@ export default function Home() {
     const activeId = String(active.id);
     const overId = String(over.id);
 
+    console.log('overId: ', overId);
+
     //Reorder existing items
     if (active.data.current?.type === 'sortable-item') {
       const fromUid = activeId;
@@ -129,13 +145,16 @@ export default function Home() {
     let newItem: DroppedQuestion | null = null;
 
     // Add new item from the left palette
-    if (activeItem) {
+    if (activeItem && overId) {
+      console.log('Act item: ', activeItem);
+      const res = getQuestion(activeItem.id as QuestionType);
+      console.log('result: ', res);
       if (overId.startsWith('slot-')) {
         const index = Number(overId.split('-')[1]);
-        newItem = addDroppedItem(activeItem, index);
-        console.log('new iem: ', newItem);
+
+        newItem = addDroppedItem(activeItem, index, res);
       } else if (overId === 'DROP_ZONE') {
-        newItem = addDroppedItem(activeItem);
+        newItem = addDroppedItem(activeItem, undefined, res);
       }
 
       showSuccess(`${activeItem.name} question added successfully!`);
@@ -151,7 +170,7 @@ export default function Home() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // prevent accidental drags
+        distance: 20, // prevent accidental drags
       },
     })
   );
@@ -168,7 +187,7 @@ export default function Home() {
     >
       <div className="min-h-screen overflow-hidden bg-white flex flex-row gap-12 px-8 py-4">
         {/* Left palette */}
-        <aside className="basis-sm rounded-md min-h-screen overflow-y-auto hide-scrollbar">
+        <aside className="basis-2xl rounded-md min-h-screen overflow-y-auto hide-scrollbar">
           <h3 className="bg-gray-200 text-gray-700 text-center py-4 text-lg font-semibold">
             Form Elements
           </h3>
@@ -186,12 +205,12 @@ export default function Home() {
         </aside>
 
         {/* Drop Zone */}
-        <main className="basis-2xl min-h-screen overflow-y-auto hide-scrollbar">
+        <main className="w-full min-h-screen overflow-y-auto hide-scrollbar">
           <DropZoneContainer />
         </main>
 
         {/* Right edit panel */}
-        <aside className="basis-sm border border-gray-200 min-h-screen overflow-y-auto hide-scrollbar">
+        <aside className="basis-4xl border border-gray-200 min-h-screen overflow-y-auto hide-scrollbar">
           <EditZoneContainer />
         </aside>
 

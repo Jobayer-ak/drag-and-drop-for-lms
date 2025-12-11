@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -30,7 +31,9 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
   const options = ['Option 1', 'Option 2', 'Option 3'];
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
-  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
+  const { selectedUid, duplicateDroppedItem, droppedItems } =
+    useQuestionBuilder();
+  const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
 
   const handleChange = (option: string) => {
     setCheckedItems((prev) => ({
@@ -82,16 +85,16 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
 
       <CardContent>
         <div className="flex flex-col gap-4 text-gray-400 px-1.5">
-          {options.map((option, index) => {
+          {singleDroppedItem?.data?.options?.map((option: any, index: any) => {
             const id = `${uid}-option-${index}`;
             return (
               <div key={id} className="flex items-center gap-3">
                 <Checkbox
                   id={id}
-                  checked={checkedItems[option] || false}
+                  defaultChecked={index === 1 && true}
                   onCheckedChange={() => handleChange(option)}
                 />
-                <Label htmlFor={id}>{option}</Label>
+                <Label htmlFor={id}>{option.text}</Label>
               </div>
             );
           })}
@@ -102,7 +105,7 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          Multiple Select 2 Points
+          Multiple Select {singleDroppedItem?.data?.points} Points
         </Badge>
       </CardFooter>
     </Card>

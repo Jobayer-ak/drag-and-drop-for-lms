@@ -11,6 +11,7 @@ import { MultipleSelect } from '../question_comp/multiple_select/MultipleSelect'
 import NumericEntry from '../question_comp/numeric_entry/NumericEntry';
 import OrderingQuestion from '../question_comp/ordering_question/OrderingQuestion';
 import TrueFalse from '../question_comp/true_false/TrueFalse';
+import { useQuestionStore } from '../../store/questionEditor';
 
 interface SortableItemProps {
   item: DroppedQuestion;
@@ -30,11 +31,12 @@ const SortableItem: React.FC<SortableItemProps> = ({
     isDragging,
   } = useSortable({
     id: item.uid,
-    // Restrict to vertical movement only
     data: {
       type: 'sortable-item',
     },
   });
+
+  const {} = useQuestionStore();
 
   const style = {
     transform: CSS.Transform.toString(transform),

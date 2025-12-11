@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { QuestionState } from './questionEditor';
 
 export interface QuestionItem {
   id: string; // type of question: MultipleChoice, TrueFalse, etc.
@@ -29,7 +30,11 @@ interface QuestionBuilderStore {
   setActiveItem: (item: QuestionItem | null) => void;
   moveDroppedItemByUid: (fromUid: string, toIndex: number) => void;
   reorderDroppedItems: (item: DroppedQuestion[]) => void;
-  addDroppedItem: (item: QuestionItem, index?: number) => any;
+  addDroppedItem: (
+    item: QuestionItem,
+    index?: number,
+    info?: QuestionState
+  ) => any;
   lastDroppedItem: null;
   setLastDroppedItem: (item: DroppedQuestion) => void;
   duplicateDroppedItem: (uid: string) => string | null;
@@ -70,14 +75,18 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
           set({ droppedItems: items });
         },
 
-        addDroppedItem: (item: QuestionItem, index?: number) => {
+        addDroppedItem: (
+          item: QuestionItem,
+          index?: number,
+          info?: QuestionState
+        ) => {
           let created: DroppedQuestion | null = null;
 
           set((state) => {
             const newItem: DroppedQuestion = {
               ...item,
               uid: uuidv4(),
-              data: {},
+              data: info,
               type: 'sortable-item',
             };
 
