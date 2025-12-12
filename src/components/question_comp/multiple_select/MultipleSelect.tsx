@@ -91,7 +91,7 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
               <div key={id} className="flex items-center gap-3">
                 <Checkbox
                   id={id}
-                  defaultChecked={index === 1 && true}
+                  checked={option.isCOrrect ? true : false}
                   onCheckedChange={() => handleChange(option)}
                 />
                 <Label htmlFor={id}>{option.text}</Label>

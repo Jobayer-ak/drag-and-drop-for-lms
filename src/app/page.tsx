@@ -11,7 +11,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DraggableQuestions from '../components/draggable/DraggableQuestions';
 import DropZoneContainer from '../components/drop-zone/DropZoneContainer';
 import EditZoneContainer from '../components/edit-zone/EditZoneContainer';
@@ -19,7 +19,7 @@ import DragPreview from '../components/preview/DragPreview';
 import { ICON_MAP } from '../components/question-items/QItem';
 import SortingPreview from '../components/sortable/SortingPreview';
 import { showSuccess } from '../lib/toastHelper';
-import { DroppedQuestion, useQuestionBuilder } from '../store/questionBuilder';
+import { useQuestionBuilder } from '../store/questionBuilder';
 import { QuestionType, useQuestionStore } from '../store/questionEditor';
 
 const items = [
@@ -66,7 +66,6 @@ const items = [
     icon: 'FaBarsStaggered',
   },
 ];
-
 const questionsName = [
   'MultipleChoice',
   'MultipleSelect',
@@ -80,6 +79,8 @@ const questionsName = [
 export default function Home() {
   const [mounted, setMounted] = useState<boolean>(false);
 
+  const containerRef = useRef<HTMLDivElement>(null); // NEW: shared DropZone ref
+
   const [sortAcitveDrag, setSortActiveDrag] = useState<string | null>(null);
 
   const {
@@ -92,26 +93,19 @@ export default function Home() {
   } = useQuestionBuilder();
 
   const { MultipleChoice, getQuestion } = useQuestionStore();
-  const { options, q_id } = MultipleChoice;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // console.log('current active item: ', activeItem);
-
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const type = active.data.current?.type;
 
-    console.log('event afsafasd: ', active);
-
     if (type === 'sortable-item') {
-      // This is an already dropped item being dragged
       setSortActiveDrag(String(active?.id));
-      setActiveItem(null); // no activeItem from left panel
+      setActiveItem(null);
     } else {
-      // This is a new item from the left palette
       const found = items.find((i) => i.id === active.id);
       setActiveItem(found ?? null);
       setSortActiveDrag(null);
@@ -121,6 +115,91 @@ export default function Home() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
+    // Compute actual drop pointer coordinates (best-effort):
+    const computeDropPoint = (): { x: number; y: number } | null => {
+      // 1) Prefer using activatorEvent + delta (most reliable)
+      try {
+        const activator = event.activatorEvent as
+          | PointerEvent
+          | TouchEvent
+          | undefined;
+        const dx = event.delta?.x ?? 0;
+        const dy = event.delta?.y ?? 0;
+
+        if (activator) {
+          // PointerEvent (mouse / pointer)
+          if ('clientX' in activator && typeof activator.clientX === 'number') {
+            return {
+              x: activator.clientX + dx,
+              y: activator.clientY + dy,
+            };
+          }
+
+          // TouchEvent (mobile): use first touch if available
+          if ('touches' in activator && activator.touches?.[0]) {
+            const touch = activator.touches[0];
+            return {
+              x: touch.clientX + dx,
+              y: touch.clientY + dy,
+            };
+          }
+
+          // For older event shapes, try changedTouches
+          if ('changedTouches' in activator && activator.changedTouches?.[0]) {
+            const touch = activator.changedTouches[0];
+            return {
+              x: touch.clientX + dx,
+              y: touch.clientY + dy,
+            };
+          }
+        }
+      } catch (e) {
+        // ignore and fallback
+      }
+
+      // 2) Fallback: use over.rect center if available
+      if (over && (over as any).rect) {
+        const r = (over as any).rect;
+        // rect has x,y,width,height — use center as pointer pos
+        const cx =
+          typeof r.x === 'number'
+            ? r.x + (r.width ? r.width / 2 : 0)
+            : r.left + (r.width ? r.width / 2 : 0);
+        const cy =
+          typeof r.y === 'number'
+            ? r.y + (r.height ? r.height / 2 : 0)
+            : r.top + (r.height ? r.height / 2 : 0);
+        return { x: cx, y: cy };
+      }
+
+      // 3) last resort: null
+      return null;
+    };
+
+    const dropPoint = computeDropPoint();
+
+    // If we couldn't compute drop point, safely cancel (or allow by over presence — choose cancel)
+    if (!dropPoint) {
+      // Optional: if you want to allow drops when `over` exists even without coordinates, remove this return
+      setActiveItem(null);
+      return;
+    }
+
+    // Check if drop point is inside the DropZone container
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    const pointerInsideDropZone =
+      !!containerRect &&
+      dropPoint.x >= containerRect.left &&
+      dropPoint.x <= containerRect.right &&
+      dropPoint.y >= containerRect.top &&
+      dropPoint.y <= containerRect.bottom;
+
+    if (!pointerInsideDropZone) {
+      setActiveItem(null);
+      return;
+    }
+
+    // now safe to use `over`
     if (!over) {
       setActiveItem(null);
       return;
@@ -129,40 +208,23 @@ export default function Home() {
     const activeId = String(active.id);
     const overId = String(over.id);
 
-    console.log('overId: ', overId);
-
-    //Reorder existing items
+    // Sorting existing items
     if (active.data.current?.type === 'sortable-item') {
-      const fromUid = activeId;
       const newIndex = droppedItems.findIndex((i) => i.uid === overId);
-
-      if (newIndex !== -1) {
-        moveDroppedItemByUid(fromUid, newIndex);
-      }
+      if (newIndex !== -1) moveDroppedItemByUid(activeId, newIndex);
       return;
     }
 
-    let newItem: DroppedQuestion | null = null;
+    // Add new item (only when dropping onto a slot)
+    if (activeItem && overId.startsWith('slot-')) {
+      const index = Number(overId.split('-')[1]);
+      const q = getQuestion(activeItem.id as QuestionType);
 
-    // Add new item from the left palette
-    if (activeItem && overId) {
-      console.log('Act item: ', activeItem);
-      const res = getQuestion(activeItem.id as QuestionType);
-      console.log('result: ', res);
-      if (overId.startsWith('slot-')) {
-        const index = Number(overId.split('-')[1]);
+      const newItem = addDroppedItem(activeItem, index, q);
+      setLastDroppedItem(newItem);
 
-        newItem = addDroppedItem(activeItem, index, res);
-      } else if (overId === 'DROP_ZONE') {
-        newItem = addDroppedItem(activeItem, undefined, res);
-      }
-
-      showSuccess(`${activeItem.name} question added successfully!`);
+      showSuccess(`${activeItem.name} added successfully!`);
     }
-
-    // 2. Store the last dropped item
-
-    if (newItem) setLastDroppedItem(newItem);
 
     setActiveItem(null);
   };
@@ -170,12 +232,12 @@ export default function Home() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 20, // prevent accidental drags
+        distance: 10,
+        delay: 100,
+        tolerance: 5,
       },
     })
   );
-
-  console.log('again tyep: ', sortAcitveDrag);
 
   return (
     <DndContext
@@ -186,7 +248,7 @@ export default function Home() {
       modifiers={sortAcitveDrag ? [restrictToVerticalAxis] : []}
     >
       <div className="min-h-screen overflow-hidden bg-white flex flex-row gap-12 px-8 py-4">
-        {/* Left palette */}
+        {/* Left Panel */}
         <aside className="basis-2xl rounded-md min-h-screen overflow-y-auto hide-scrollbar">
           <h3 className="bg-gray-200 text-gray-700 text-center py-4 text-lg font-semibold">
             Form Elements
@@ -206,15 +268,15 @@ export default function Home() {
 
         {/* Drop Zone */}
         <main className="w-full min-h-screen overflow-y-auto hide-scrollbar">
-          <DropZoneContainer />
+          <DropZoneContainer containerRef={containerRef} />
         </main>
 
-        {/* Right edit panel */}
+        {/* Right Panel */}
         <aside className="basis-4xl border border-gray-200 min-h-screen overflow-y-auto hide-scrollbar">
           <EditZoneContainer />
         </aside>
 
-        {/* Drag preview overlay */}
+        {/* Drag Preview */}
         <DragOverlay>
           {activeItem ? (
             <DragPreview

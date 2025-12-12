@@ -19,6 +19,8 @@ const EditZoneContainer = () => {
     ? droppedItems.find((item) => item.uid === selectedUid)?.id
     : activeItem?.id || lastDroppedItem?.id;
 
+  console.log('it: ', currentItem);
+
   return (
     <div className="hide-scrollbar">
       {droppedItems?.length < 1 && (
@@ -65,11 +67,15 @@ const EditZoneContainer = () => {
           </Tabs>
         </div>
       )}
-      {currentItem === 'MultipleChoice' && <MultipleChoiceQ />}
+      {currentItem !== null && currentItem === 'MultipleChoice' && (
+        <MultipleChoiceQ />
+      )}
       {currentItem === 'MultipleSelect' && <MultipleSelectQ />}
-      {currentItem === 'TrueFalse' && <TrueFalseQ />}
-      {currentItem === 'Numeric' && <NumericQ />}
-      {currentItem === 'Ordering' && <OrderingQ />}
+      {currentItem === 'TrueFalse' && droppedItems.length >= 1 && (
+        <TrueFalseQ />
+      )}
+      {currentItem === 'Numeric' && droppedItems.length >= 1 && <NumericQ />}
+      {currentItem === 'Ordering' && droppedItems.length >= 1 && <OrderingQ />}
     </div>
   );
 };

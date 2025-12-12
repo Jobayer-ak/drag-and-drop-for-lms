@@ -40,7 +40,7 @@ interface QuestionBuilderStore {
   duplicateDroppedItem: (uid: string) => string | null;
   deleteDroppedItem: (uid: string) => void;
   selectDroppedItem: (uid: string) => void;
-  updateDroppedItem: (uid: string, newData: Partial<DroppedQuestion>) => void;
+  updateDroppedItem: (uid: string, newData: QuestionState) => void;
 }
 
 export const useQuestionBuilder = create<QuestionBuilderStore>()(
@@ -157,10 +157,12 @@ export const useQuestionBuilder = create<QuestionBuilderStore>()(
 
         updateDroppedItem: (uid, newData) => {
           set((state) => {
-            const index = state.droppedItems.findIndex((q) => q.uid === uid);
+            const index = state.droppedItems.findIndex(
+              (item) => item.uid === uid
+            );
             if (index !== -1) {
-              state.droppedItems[index] = {
-                ...state.droppedItems[index],
+              state.droppedItems[index].data = {
+                ...state.droppedItems[index].data,
                 ...newData,
               };
             }

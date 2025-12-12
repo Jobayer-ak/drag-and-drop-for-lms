@@ -12,45 +12,43 @@ import { useQuestionBuilder } from '../../store/questionBuilder';
 import { DeleteConfirm } from '../DeleteConfirm';
 import SortableItem from '../sortable/Sortabletem';
 
-const DropGap = ({
-  id,
-  height,
-  children,
-}: {
-  id: string;
-  height?: number;
-  children?: React.ReactNode;
-}) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`w-full rounded transition-all ${
-        isOver ? 'bg-blue-200 border-2 border-blue-400' : ''
-      }`}
-      style={{ minHeight: height ?? 48 }}
-    >
-      {children}
-    </div>
-  );
-};
-
-const DropZoneContainer = () => {
+const DropZoneContainer = ({ containerRef }: { containerRef: any }) => {
   const [pendingDeleteUid, setPendingDeleteUid] = useState<string | null>(null);
-
-  const { setNodeRef } = useDroppable({ id: 'DROP_ZONE' });
   const { droppedItems, deleteDroppedItem } = useQuestionBuilder();
 
+  console.log('dropped: ', droppedItems);
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [containerHeight, setContainerHeight] = useState<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (containerRef.current) {
       setContainerHeight(containerRef.current.getBoundingClientRect().height);
     }
-  }, [droppedItems]);
+  }, [containerRef, droppedItems]);
+
+  const DropGap = ({
+    id,
+    height,
+    children,
+  }: {
+    id: string;
+    height?: number;
+    children?: React.ReactNode;
+  }) => {
+    const { setNodeRef, isOver } = useDroppable({ id });
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={`w-full rounded transition-all ${
+          isOver ? 'bg-blue-200 border-2 border-blue-400' : ''
+        }`}
+        style={{ minHeight: height ?? 48 }}
+      >
+        {children}
+      </div>
+    );
+  };
 
   const handleDeleteConfirm = () => {
     if (pendingDeleteUid) {
@@ -72,12 +70,8 @@ const DropZoneContainer = () => {
 
   return (
     <div
-      ref={(el) => {
-        containerRef.current = el;
-        setNodeRef(el);
-      }}
-      id="drop_zone"
-      className="relative flex flex-col gap-0 p-8 bg-white border border-gray-200 h-screen overflow-y-auto hide-scrollbar rounded-[8px]"
+      ref={containerRef}
+      className="relative flex flex-col gap-0 p-8 bg-white border border-gray-200 rounded-[8px] min-h-[600px]"
     >
       <SortableContext
         strategy={verticalListSortingStrategy}
@@ -85,7 +79,6 @@ const DropZoneContainer = () => {
       >
         {droppedItems.length > 0 ? (
           <div className="flex flex-col w-full">
-            {/* Top gap */}
             <DropGap id="slot-0" />
 
             {droppedItems.map((item, index) => (
@@ -100,25 +93,27 @@ const DropZoneContainer = () => {
                   item={item}
                   setPendingDeleteUid={setPendingDeleteUid}
                 />
-                {/* Gap after this item */}
                 <DropGap id={`slot-${index + 1}`} />
               </div>
             ))}
 
-            {/* Bottom gap */}
             <DropGap
               id={`slot-${droppedItems.length}`}
               height={getBottomGapHeight()}
             />
           </div>
         ) : (
-          // Empty drop zone
-          <DropGap id={'slot-0'} height={containerHeight}>
-            <div className="min-h-screen flex flex-col items-center justify-center gap-2 rounded-[8px] border-2 border-dashed border-gray-700">
+          <DropGap id={'slot-0'} height={400}>
+            <div className="h-[530px] flex flex-col items-center justify-center gap-2 rounded-[8px] border-2 border-dashed border-gray-700">
               <PiArrowsOut className="h-25 w-25 text-gray-400" />
               <h4 className="text-gray-400 font-semibold text-lg">
                 Drag and Drop Questions Here
               </h4>
+              <p className="text-gray-500 text-sm text-center max-w-md">
+                Drag question types from the left panel
+                <br />
+                and drop them in this area
+              </p>
             </div>
           </DropGap>
         )}

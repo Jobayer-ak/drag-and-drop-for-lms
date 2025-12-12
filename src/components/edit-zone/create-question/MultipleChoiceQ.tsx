@@ -7,7 +7,8 @@ import { useForm } from 'react-hook-form';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { showSuccess } from '../../../lib/toastHelper';
-import { EditorOption, useQuestionStore } from '../../../store/questionEditor';
+import { useQuestionBuilder } from '../../../store/questionBuilder';
+import { EditorOption, QuestionState } from '../../../store/questionEditor';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { Input } from '../../ui/input';
@@ -22,87 +23,127 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function MultipleChoiceQ() {
-  const { MultipleChoice, updateMultipleChoice } = useQuestionStore();
+  const { droppedItems, selectedUid, lastDroppedItem } = useQuestionBuilder();
 
-  // Initialize local state with store data
-  const [localOptions, setLocalOptions] = useState<EditorOption[]>([]);
+  const singleDroppedItem = droppedItems.find(
+    (item) => item.uid === selectedUid || lastDroppedItem
+  );
 
-  // Sync local state with store data on component mount
+  console.log('Single dropped item: ', singleDroppedItem);
+
+  // ------------------------------
+  // Local Editable State (Correct)
+  // ------------------------------
+  const [localState, setLocalState] = useState<QuestionState | null>(null);
+
   useEffect(() => {
-    setLocalOptions([...MultipleChoice.options]);
-  }, [MultipleChoice.options]);
+    if (singleDroppedItem?.data) {
+      setLocalState({
+        ...singleDroppedItem.data,
+        options: [...(singleDroppedItem.data.options ?? [])],
+      });
+    }
+  }, [singleDroppedItem]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      questionText: MultipleChoice.questionText,
-      points: MultipleChoice.points,
+      questionText: singleDroppedItem?.data.questionText,
+      points: singleDroppedItem?.data.points,
     },
   });
 
-  const addOption = () => {
-    const newOption: EditorOption = {
-      id: uuid(),
-      text: `Option ${localOptions.length + 1}`,
-      isCorrect: false,
-    };
-    setLocalOptions([...localOptions, newOption]);
-  };
+  useEffect(() => {
+    if (!singleDroppedItem?.data) return;
 
-  const updateOptionText = (id: string, text: string) => {
-    setLocalOptions((opts) =>
-      opts.map((o) => (o.id === id ? { ...o, text } : o))
+    form.reset({
+      questionText: singleDroppedItem.data.questionText,
+      points: singleDroppedItem.data.points,
+    });
+
+    setLocalState({
+      ...singleDroppedItem.data,
+      options: [...(singleDroppedItem.data.options ?? [])],
+    });
+  }, [singleDroppedItem, form]);
+
+  const updateOptions = (opts: EditorOption[]) => {
+    setLocalState((prev) =>
+      prev
+        ? {
+            ...prev,
+            options: opts,
+          }
+        : prev
     );
   };
 
-  // Single-select: Only one option can be correct at a time
+  const addOption = () => {
+    if (!localState) return;
+
+    const newOption: EditorOption = {
+      id: uuid(),
+      text: `Option ${localState?.options?.length + 1 || 1}`,
+      isCorrect: false,
+    };
+
+    updateOptions([...(localState.options ?? []), newOption]);
+  };
+
+  const updateOptionText = (id: string, text: string) => {
+    if (!localState?.options) return;
+
+    updateOptions(
+      localState.options.map((o) => (o.id === id ? { ...o, text } : o))
+    );
+  };
+
   const setCorrectOption = (id: string) => {
-    setLocalOptions((opts) =>
-      opts.map((o) => ({
+    if (!localState?.options) return;
+
+    updateOptions(
+      localState.options.map((o) => ({
         ...o,
-        isCorrect: o.id === id, // Set true only for clicked option, false for others
+        isCorrect: o.id === id,
       }))
     );
   };
 
   const removeOption = (id: string) => {
-    const newOptions = localOptions.filter((o) => o.id !== id);
+    if (!localState?.options) return;
 
-    // Update option text to reflect new indices (only for default patterns)
-    const updatedOptions = newOptions.map((opt, index) => {
-      // If the option text follows the pattern "Option X", update it to new index
-      const isDefaultPattern = /^Option\s+\d+$/.test(opt.text);
+    const filtered = localState.options.filter((o) => o.id !== id);
 
+    const updated = filtered.map((o, idx) => {
+      const defaultPattern = /^Option\s+\d+$/.test(o.text);
       return {
-        ...opt,
-        text: isDefaultPattern ? `Option ${index + 1}` : opt.text,
+        ...o,
+        text: defaultPattern ? `Option ${idx + 1}` : o.text,
       };
     });
 
-    setLocalOptions(updatedOptions);
+    updateOptions(updated);
   };
 
-  // Helper function to get option index (1-based)
-  const getOptionIndex = (id: string): number => {
-    const index = localOptions.findIndex((opt) => opt.id === id);
-    return index + 1; // Return 1-based index
+  const getOptionIndex = (id: string) => {
+    return (localState?.options?.findIndex((o) => o.id === id) ?? -1) + 1;
   };
 
   const onSubmit = (values: FormValues) => {
-    // Ensure at least one option is correct if there are options
-    const hasCorrectOption = localOptions.some((opt) => opt.isCorrect);
-    const finalOptions =
-      localOptions.length > 0
-        ? hasCorrectOption
-          ? localOptions
-          : localOptions.map((opt, index) => ({
-              ...opt,
-              isCorrect: index === 0,
-            }))
-        : [];
+    if (!localState) return;
 
-    // Update the store with all changes
-    updateMultipleChoice({
+    const opts = localState.options ?? [];
+    const hasCorrect = opts.some((o) => o.isCorrect);
+
+    const finalOptions = hasCorrect
+      ? opts
+      : opts.map((o, idx) => ({
+          ...o,
+          isCorrect: idx === 0,
+        }));
+
+    console.log('Final updated data: ', {
+      ...localState,
       questionText: values.questionText,
       points: values.points,
       options: finalOptions,
@@ -114,14 +155,7 @@ export default function MultipleChoiceQ() {
   const reUseClass =
     'text-gray-600 border rounded-[3px] focus:border-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none  focus-visible:ring-0 border-gray-200 focus-visible:border-gray-200';
 
-  // Reset form when store data changes
-  useEffect(() => {
-    form.reset({
-      questionText: MultipleChoice.questionText,
-      points: MultipleChoice.points,
-    });
-    setLocalOptions([...MultipleChoice.options]);
-  }, [MultipleChoice, form]);
+  if (!localState) return null;
 
   return (
     <div className="flex h-full flex-col">
@@ -199,7 +233,7 @@ export default function MultipleChoiceQ() {
                 </span>
               </div>
 
-              {localOptions.map((opt) => (
+              {(localState.options ?? []).map((opt) => (
                 <div
                   key={opt.id}
                   className="flex items-center gap-3 pr-2 rounded-md"
@@ -216,11 +250,11 @@ export default function MultipleChoiceQ() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeOption(opt.id)}
-                      disabled={localOptions.length <= 2}
+                      disabled={(localState.options?.length ?? 0) <= 2}
                     >
                       <Trash2
                         className={`h-4 w-4 ${
-                          localOptions.length <= 2
+                          (localState.options?.length ?? 0) <= 2
                             ? 'text-gray-400'
                             : 'text-red-600'
                         }`}
@@ -243,14 +277,14 @@ export default function MultipleChoiceQ() {
                   size="sm"
                   onClick={addOption}
                   variant="outline"
-                  className="w-full"
+                  className={`w-full ${reUseClass}`}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Option
                 </Button>
               </div>
             </div>
 
-            <div className="pt-4 border-t">
+            <div className="pt-4">
               <Button
                 type="submit"
                 className="w-full bg-green-600 hover:bg-green-700 text-white rounded-[3px] cursor-pointer"
@@ -260,8 +294,6 @@ export default function MultipleChoiceQ() {
             </div>
           </form>
         </TabsContent>
-
-        {/* Other tabs ... */}
       </Tabs>
     </div>
   );
