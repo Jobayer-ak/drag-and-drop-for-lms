@@ -23,18 +23,14 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function MultipleChoiceQ() {
-  const { droppedItems, selectedUid, lastDroppedItem } = useQuestionBuilder();
+  const { droppedItems, selectedUid, lastDroppedItem, updateDroppedItem } =
+    useQuestionBuilder();
+
+  const [localState, setLocalState] = useState<QuestionState | null>(null);
 
   const singleDroppedItem = droppedItems.find(
     (item) => item.uid === selectedUid || lastDroppedItem
   );
-
-  console.log('Single dropped item: ', singleDroppedItem);
-
-  // ------------------------------
-  // Local Editable State (Correct)
-  // ------------------------------
-  const [localState, setLocalState] = useState<QuestionState | null>(null);
 
   useEffect(() => {
     if (singleDroppedItem?.data) {
@@ -112,17 +108,18 @@ export default function MultipleChoiceQ() {
   const removeOption = (id: string) => {
     if (!localState?.options) return;
 
+    if (localState.options?.length <= 2) return;
+
     const filtered = localState.options.filter((o) => o.id !== id);
 
-    const updated = filtered.map((o, idx) => {
-      const defaultPattern = /^Option\s+\d+$/.test(o.text);
+    const res = filtered.map((item, index) => {
       return {
-        ...o,
-        text: defaultPattern ? `Option ${idx + 1}` : o.text,
+        ...item,
+        text: `option ${index + 1}`,
       };
     });
 
-    updateOptions(updated);
+    updateOptions(res);
   };
 
   const getOptionIndex = (id: string) => {
@@ -142,12 +139,16 @@ export default function MultipleChoiceQ() {
           isCorrect: idx === 0,
         }));
 
-    console.log('Final updated data: ', {
+    const upData = {
       ...localState,
       questionText: values.questionText,
       points: values.points,
       options: finalOptions,
-    });
+    };
+
+    if (!selectedUid) return;
+
+    updateDroppedItem(selectedUid, upData);
 
     showSuccess('Question updated!');
   };

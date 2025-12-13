@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
@@ -28,19 +27,9 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const options = ['Option 1', 'Option 2', 'Option 3'];
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-
   const { selectedUid, duplicateDroppedItem, droppedItems } =
     useQuestionBuilder();
   const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
-
-  const handleChange = (option: string) => {
-    setCheckedItems((prev) => ({
-      ...prev,
-      [option]: !prev[option],
-    }));
-  };
 
   return (
     <Card
@@ -85,15 +74,11 @@ export const MultipleSelect: React.FC<ComponentNameProps> = ({
 
       <CardContent>
         <div className="flex flex-col gap-4 text-gray-400 px-1.5">
-          {singleDroppedItem?.data?.options?.map((option: any, index: any) => {
+          {singleDroppedItem?.data?.options.map((option: any, index: any) => {
             const id = `${uid}-option-${index}`;
             return (
               <div key={id} className="flex items-center gap-3">
-                <Checkbox
-                  id={id}
-                  checked={option.isCOrrect ? true : false}
-                  onCheckedChange={() => handleChange(option)}
-                />
+                <Checkbox id={id} checked={option.isCorrect} />
                 <Label htmlFor={id}>{option.text}</Label>
               </div>
             );

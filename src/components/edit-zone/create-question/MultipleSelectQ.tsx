@@ -91,6 +91,23 @@ export default function MultipleSelectQ() {
     updateOptions([...(localState.options ?? []), newOption]);
   };
 
+  const removeOption = (id: string) => {
+    if (!localState?.options) return;
+
+    if (localState.options?.length <= 2) return;
+
+    const filtered = localState.options.filter((o) => o.id !== id);
+
+    const res = filtered.map((item, index) => {
+      return {
+        ...item,
+        text: `option ${index + 1}`,
+      };
+    });
+
+    updateOptions(res);
+  };
+
   const updateOptionText = (id: string, text: string) => {
     if (!localState?.options) return;
 
@@ -110,22 +127,6 @@ export default function MultipleSelectQ() {
     );
   };
 
-  const removeOption = (id: string) => {
-    if (!localState?.options) return;
-
-    const filtered = localState.options.filter((o) => o.id !== id);
-
-    const updated = filtered.map((o, idx) => {
-      const defaultPattern = /^Option\s+\d+$/.test(o.text);
-      return {
-        ...o,
-        text: defaultPattern ? `Option ${idx + 1}` : o.text,
-      };
-    });
-
-    updateOptions(updated);
-  };
-
   const getOptionIndex = (id: string) => {
     return (localState?.options?.findIndex((o) => o.id === id) ?? -1) + 1;
   };
@@ -135,8 +136,6 @@ export default function MultipleSelectQ() {
 
     const opts = localState.options ?? [];
     const hasCorrect = opts.some((o) => o.isCorrect);
-
-    console.log('isCOrrect: ', values);
 
     const finalOptions = hasCorrect
       ? opts
@@ -151,7 +150,7 @@ export default function MultipleSelectQ() {
       points: values.points,
       options: finalOptions,
     };
-    console.log('up data: ', upData);
+
     if (!selectedUid) return;
     updateDroppedItem(selectedUid, upData);
 

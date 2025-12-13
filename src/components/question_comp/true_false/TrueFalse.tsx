@@ -30,7 +30,9 @@ const TrueFalse: React.FC<ComponentNameProps> = ({
 
   const [selected, setSelected] = useState('');
 
-  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
+  const { selectedUid, duplicateDroppedItem, droppedItems } =
+    useQuestionBuilder();
+  const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
 
   return (
     <Card
@@ -79,16 +81,16 @@ const TrueFalse: React.FC<ComponentNameProps> = ({
           onValueChange={(val) => setSelected(val)}
           className="px-1 text-gray-400"
         >
-          {options.map((option, index) => {
+          {singleDroppedItem?.data?.options.map((option, index) => {
             const id = `${uid}-option-${index}`;
             return (
               <div key={id} className="flex items-center gap-3">
                 <RadioGroupItem
-                  value={option.toLowerCase()}
+                  value={option.isCorrect}
                   id={id}
                   className="border border-gray-400"
                 />
-                <Label htmlFor={id}>{option}</Label>
+                <Label htmlFor={id}>{option.text}</Label>
               </div>
             );
           })}
@@ -99,7 +101,7 @@ const TrueFalse: React.FC<ComponentNameProps> = ({
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          True/False 1 Point
+          True/False {singleDroppedItem?.data?.points} Point
         </Badge>
       </CardFooter>
     </Card>
