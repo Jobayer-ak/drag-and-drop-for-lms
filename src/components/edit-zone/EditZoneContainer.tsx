@@ -67,15 +67,11 @@ const EditZoneContainer = () => {
           </Tabs>
         </div>
       )}
-      {currentItem !== null && currentItem === 'MultipleChoice' && (
-        <MultipleChoiceQ />
-      )}
+      {currentItem === 'MultipleChoice' && <MultipleChoiceQ />}
       {currentItem === 'MultipleSelect' && <MultipleSelectQ />}
-      {currentItem === 'TrueFalse' && droppedItems.length >= 1 && (
-        <TrueFalseQ />
-      )}
-      {currentItem === 'Numeric' && droppedItems.length >= 1 && <NumericQ />}
-      {currentItem === 'Ordering' && droppedItems.length >= 1 && <OrderingQ />}
+      {currentItem === 'TrueFalse' && <TrueFalseQ />}
+      {currentItem === 'Numeric' && <NumericQ />}
+      {currentItem === 'Ordering' && <OrderingQ />}
     </div>
   );
 };

@@ -31,8 +31,6 @@ const MultipleChoice: React.FC<ComponentNameProps> = ({
 
   const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
 
-  console.log('dropped items: ', singleDroppedItem?.data?.options);
-
   return (
     <Card
       className={`border rounded-3xl ${preview ? 'bg-white' : ''} ${

@@ -29,7 +29,7 @@ export default function MultipleChoiceQ() {
   const [localState, setLocalState] = useState<QuestionState | null>(null);
 
   const singleDroppedItem = droppedItems.find(
-    (item) => item.uid === selectedUid || lastDroppedItem
+    (item) => item.uid === selectedUid
   );
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function MultipleChoiceQ() {
 
     updateDroppedItem(selectedUid, upData);
 
-    showSuccess('Question updated!');
+    showSuccess('Question updated successfully!');
   };
 
   const reUseClass =

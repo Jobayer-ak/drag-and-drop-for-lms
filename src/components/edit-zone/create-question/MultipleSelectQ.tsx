@@ -27,14 +27,9 @@ export default function MultipleSelectQ() {
     useQuestionBuilder();
 
   const singleDroppedItem = droppedItems.find(
-    (item) => item.uid === selectedUid || lastDroppedItem
+    (item) => item.uid === selectedUid
   );
 
-  console.log('Single dropped Multiple Select item: ', singleDroppedItem);
-
-  // ------------------------------
-  // Local Editable State
-  // ------------------------------
   const [localState, setLocalState] = useState<QuestionState | null>(null);
 
   useEffect(() => {

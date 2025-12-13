@@ -26,8 +26,6 @@ const TrueFalse: React.FC<ComponentNameProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const options = ['True', 'False'];
-
   const [selected, setSelected] = useState('');
 
   const { selectedUid, duplicateDroppedItem, droppedItems } =
@@ -86,7 +84,8 @@ const TrueFalse: React.FC<ComponentNameProps> = ({
             return (
               <div key={id} className="flex items-center gap-3">
                 <RadioGroupItem
-                  value={option.isCorrect}
+                  value={option.text}
+                  checked={option.isCorrect}
                   id={id}
                   className="border border-gray-400"
                 />
