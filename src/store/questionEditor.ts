@@ -15,6 +15,8 @@ export type QuestionState = {
   questionText: string;
   points: number;
   options?: EditorOption[];
+  answer?: number;
+  error_tolerance?: number;
 };
 
 export type QuestionType =
@@ -77,6 +79,8 @@ const createDefaultQuestion = (type: QuestionType): QuestionState => {
         q_id: type,
         questionText: '',
         points: 1,
+        answer: 200,
+        error_tolerance: 1,
       };
     case 'Ordering':
       return {

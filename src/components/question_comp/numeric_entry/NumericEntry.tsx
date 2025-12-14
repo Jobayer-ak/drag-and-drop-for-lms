@@ -26,7 +26,9 @@ const NumericEntry: React.FC<ComponentNameProps> = ({
 }) => {
   const inputId = `${uid}-numeric-input`; // unique id for input
 
-  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
+  const { selectedUid, duplicateDroppedItem, droppedItems } =
+    useQuestionBuilder();
+  const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
 
   return (
     <Card
@@ -70,20 +72,19 @@ const NumericEntry: React.FC<ComponentNameProps> = ({
         </CardAction>
       </CardHeader>
 
-      <CardContent className="text-gray-700">
+      <CardContent className="text-gray-600 px-8">
         <Input
           id={inputId}
+          value={singleDroppedItem?.data?.answer}
           type="text"
           placeholder="Write your answer here"
-          className="border-none focus-visible:outline-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="border-t-0 border-x-0 border-b border-gray-300 rounded-none focus:border-b focus-visible:border-gray-300 focus-visible:outline-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 "
         />
-
-        <div className="h-px w-full mt-4 mx-1 bg-gray-300"></div>
       </CardContent>
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          Numerical Entry 2 Points
+          Numerical Entry {singleDroppedItem?.data?.points} Points
         </Badge>
       </CardFooter>
     </Card>
