@@ -101,6 +101,7 @@ export default function Home() {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const type = active.data.current?.type;
+    console.log('type: ', type);
 
     if (type === 'sortable-item') {
       setSortActiveDrag(String(active?.id));

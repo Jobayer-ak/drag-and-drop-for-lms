@@ -1,5 +1,22 @@
 'use client';
 
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import React from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
@@ -16,6 +33,7 @@ import {
   CardHeader,
   CardTitle,
 } from '../../ui/card';
+import SortableOptions from './SortableOptions';
 
 const OrderingQuestion: React.FC<ComponentNameProps> = ({
   uid,
@@ -24,9 +42,53 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const { selectedUid, duplicateDroppedItem, droppedItems } =
+  const { selectedUid, duplicateDroppedItem, droppedItems, updateDroppedItem } =
     useQuestionBuilder();
+
   const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleOptionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !singleDroppedItem) return;
+
+    const oldIndex = singleDroppedItem.data.options.findIndex(
+      (_: any, index: number) => `${uid}-option-${index}` === active.id
+    );
+
+    const newIndex = singleDroppedItem.data.options.findIndex(
+      (_: any, index: number) => `${uid}-option-${index}` === over.id
+    );
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reorderedOptions = arrayMove(
+      singleDroppedItem.data.options,
+      oldIndex,
+      newIndex
+    );
+
+    updateDroppedItem(uid, {
+      ...singleDroppedItem.data,
+      options: reorderedOptions,
+    });
+
+    showSuccess('Options reordered!');
+  };
+
+  const optionIds =
+    singleDroppedItem?.data?.options.map(
+      (_: any, index: number) => `${uid}-option-${index}`
+    ) || [];
 
   return (
     <Card
@@ -34,29 +96,26 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
         uid === selectedUid
           ? 'border-2 border-dashed border-blue-400'
           : 'border-gray-200'
-      }  rounded-[8px] py-2 cursor-pointer`}
+      } rounded-[8px] py-2 cursor-pointer`}
       onClick={() => onEdit?.(uid)}
     >
       <CardHeader>
         <CardTitle className="flex items-center gap-5">
-          {/* Drag handle for the whole card */}
           <MdOutlineDragIndicator
-            className="h-6 w-6 text-gray-400 cursor-move focus:outline-none focus:ring-0"
+            className="h-6 w-6 text-gray-400 cursor-move"
             {...dragHandleProps}
           />
           Ordering Question
         </CardTitle>
 
         <CardAction>
-          <div className="flex justify-end items-center gap-2">
+          <div className="flex items-center gap-2">
             <FiCopy
               className="h-5 w-5 text-gray-400 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
-                const newUid = duplicateDroppedItem(uid);
-                if (newUid) {
-                  showSuccess('Ordering question duplicated!');
-                }
+                duplicateDroppedItem(uid);
+                showSuccess('Ordering question duplicated!');
               }}
             />
             <RiDeleteBinLine
@@ -71,33 +130,39 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
       </CardHeader>
 
       <CardContent className="text-gray-700">
-        <div className="flex flex-col gap-2">
-          {singleDroppedItem?.data?.options.map((option, index) => {
-            const optionId = `${uid}-option-${index}`;
-            return (
-              <div
-                key={optionId}
-                className="ms-1 px-2 border border-gray-200 rounded-[3px] py-1"
-              >
-                <div className="flex items-center gap-3 text-gray-400 py-1">
-                  <MdOutlineDragIndicator
-                    className="h-4 w-4 text-gray-400"
-                    // {...dragHandleProps}
-                  />
-                  <span
-                    className="flex items-center justify-center w-6 h-6 bg-gray-200 text-gray-400 
-                    text-xs font-medium rounded-full"
-                  >
-                    {index + 1}
-                  </span>
-                  <p className="text-sm">{option.text}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragEnd={handleOptionDragEnd}
+        >
+          <SortableContext
+            items={optionIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="flex flex-col gap-2">
+              {singleDroppedItem?.data?.options.map(
+                (option: any, index: number) => {
+                  const optionId = `${uid}-option-${index}`;
+                  return (
+                    <SortableOptions
+                      key={optionId}
+                      option={option}
+                      index={index}
+                      uid={uid}
+                      optionId={optionId}
+                    />
+                  );
+                }
+              )}
+            </div>
+          </SortableContext>
+          <DragOverlay>
+            <div>Hello</div>
+          </DragOverlay>
+        </DndContext>
 
-        <div className="h-px w-full mt-4 mx-1 bg-gray-300"></div>
+        <div className="h-px w-full mt-4 bg-gray-300" />
       </CardContent>
 
       <CardFooter className="pb-2 pt-0">
