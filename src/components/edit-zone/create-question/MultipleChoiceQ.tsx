@@ -221,7 +221,7 @@ export default function MultipleChoiceQ() {
               <Input
                 type="number"
                 {...form.register('points')}
-                className={`w-45 mt-1 ${reUseClass}`}
+                className={`w-full mt-1 ${reUseClass}`}
               />
             </div>
 
@@ -237,7 +237,7 @@ export default function MultipleChoiceQ() {
               {(localState.options ?? []).map((opt) => (
                 <div
                   key={opt.id}
-                  className="flex items-center gap-3 pr-2 rounded-md"
+                  className="flex items-center gap-3 rounded-md"
                 >
                   <div className="flex items-center border border-gray-200 pl-3 rounded-[3px] flex-1">
                     <Input
@@ -278,7 +278,7 @@ export default function MultipleChoiceQ() {
                   size="sm"
                   onClick={addOption}
                   variant="outline"
-                  className={`w-full ${reUseClass}`}
+                  className={`w-full cursor-pointer ${reUseClass}`}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Option
                 </Button>

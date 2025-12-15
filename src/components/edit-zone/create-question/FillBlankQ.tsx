@@ -1,56 +1,42 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RadioGroupItem } from '@radix-ui/react-radio-group';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 import { showSuccess } from '../../../lib/toastHelper';
 import { useQuestionBuilder } from '../../../store/questionBuilder';
-import { EditorOption, QuestionState } from '../../../store/questionEditor';
 import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
 import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
-import { RadioGroup } from '../../ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
 import { Textarea } from '../../ui/textarea';
 
 const schema = z.object({
   questionText: z.string().min(3, 'Question too short'),
   points: z.coerce.number().min(0).default(1),
+  answer: z.coerce.string().min(0).default('Answer'),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-const TrueFalseQ = () => {
-  // const [selected, setSelected] = useState('');
-  const [localState, setLocalState] = useState<QuestionState | null>(null);
-  const { droppedItems, selectedUid, lastDroppedItem, updateDroppedItem } =
-    useQuestionBuilder();
+const FillBlankQ = () => {
+  const { droppedItems, selectedUid, updateDroppedItem } = useQuestionBuilder();
 
   const singleDroppedItem = droppedItems.find(
     (item) => item.uid === selectedUid
   );
 
-  console.log('single check data: ', singleDroppedItem);
-
-  useEffect(() => {
-    if (singleDroppedItem?.data) {
-      setLocalState({
-        ...singleDroppedItem.data,
-        options: [...(singleDroppedItem.data.options ?? [])],
-      });
-    }
-  }, [singleDroppedItem]);
-
-  useEffect(() => {}, [selectedUid]);
+  const questionText =
+    'Fill in the Blank Question__' +
+    singleDroppedItem?.data?.questionText +
+    '?';
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      questionText: singleDroppedItem?.data.questionText,
+      questionText: questionText,
       points: singleDroppedItem?.data.points,
+      answer: singleDroppedItem?.data.answer,
     },
   });
 
@@ -58,63 +44,41 @@ const TrueFalseQ = () => {
     if (!singleDroppedItem?.data) return;
 
     form.reset({
-      questionText: singleDroppedItem.data.questionText,
+      questionText: questionText,
       points: singleDroppedItem.data.points,
+      answer: singleDroppedItem.data.answer,
     });
+  }, [singleDroppedItem, form, questionText]);
 
-    setLocalState({
-      ...singleDroppedItem.data,
-      options: [...(singleDroppedItem.data.options ?? [])],
-    });
-  }, [singleDroppedItem, form]);
-
-  const updateOptions = (opts: EditorOption[]) => {
-    setLocalState((prev) =>
-      prev
-        ? {
-            ...prev,
-            options: opts,
-          }
-        : prev
+  // Show loader until data is ready
+  if (!singleDroppedItem?.data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-gray-500">Loading question...</span>
+      </div>
     );
-  };
+  }
 
-  const setCorrectOption = (id: string) => {
-    if (!localState?.options) return;
+  const extractBlank = (text: string) => {
+    const questionMarkIndex = text.lastIndexOf('?');
+    if (questionMarkIndex === -1) return '';
 
-    updateOptions(
-      localState.options.map((o) => ({
-        ...o,
-        isCorrect: o.id === id,
-      }))
-    );
+    const beforeQ = text.slice(0, questionMarkIndex);
+    const lastUnderscoreIndex = beforeQ.lastIndexOf('_');
+
+    if (lastUnderscoreIndex === -1) return '';
+
+    return beforeQ.slice(lastUnderscoreIndex + 1).trim();
   };
 
   const onSubmit = (values: FormValues) => {
-    console.log('form data: ', values);
-    if (!localState) return;
-
-    console.log('Local state: ', localState);
-
-    const opts = localState.options ?? [];
-    const hasCorrect = opts.some((o) => o.isCorrect);
-
-    const finalOptions = hasCorrect
-      ? opts
-      : opts.map((o, idx) => ({
-          ...o,
-          isCorrect: idx === 0,
-        }));
-
-    const upData = {
-      ...localState,
-      questionText: values.questionText,
-      points: values.points,
-      options: finalOptions,
-    };
-
     if (!selectedUid) return;
 
+    const upData = {
+      questionText: extractBlank(values.questionText),
+      points: values.points,
+      answer: values.answer,
+    };
     updateDroppedItem(selectedUid, upData);
 
     showSuccess('Question updated successfully!');
@@ -123,12 +87,10 @@ const TrueFalseQ = () => {
   const reUseClass =
     'text-gray-600 border rounded-[3px] focus:border-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none  focus-visible:ring-0 border-gray-200 focus-visible:border-gray-200';
 
-  if (!localState) return null;
-
   return (
     <div>
       <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-md font-semibold">
-        True/False Question
+        Fill in the Blank Question
       </h3>
       <Tabs defaultValue="general" className="">
         <TabsList className="grid grid-cols-3 gap-5 w-full h-12 shadow-sm pb-0">
@@ -183,7 +145,7 @@ const TrueFalseQ = () => {
 
             {/* Points */}
             <div>
-              <label className="text-sm text-gray-500 font-medium mr-4">
+              <label className="text-sm text-gray-500 font-medium">
                 Points
               </label>
               <br />
@@ -194,48 +156,19 @@ const TrueFalseQ = () => {
               />
             </div>
 
-            {/* Options */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-start gap-4 mb-2">
-                <span className="text-sm font-medium">Options</span>
-                <span className="text-xs text-gray-500">
-                  (Select the right one)
-                </span>
+            {/* Answer */}
+            <div className="">
+              <div className="flex items-center justify-start gap-4">
+                <span className="text-sm">Answer</span>
+                <span className="text-xs text-gray-500">(Number only)</span>
               </div>
+              <Input
+                type="text"
+                {...form.register('answer')}
+                className={`w-full mt-1 ${reUseClass}`}
+              />
             </div>
 
-            <RadioGroup
-              // value={selected}
-              // onValueChange={setSelected}
-              className="px-1 text-gray-400"
-            >
-              {localState?.options?.map((option: any, index: any) => {
-                const id = option.text;
-                return (
-                  <div key={option.id} className="flex items-center gap-3">
-                    <div className="border border-gray-200 rounded-[3px] px-4 py-3 w-71 flex items-center">
-                      <RadioGroupItem
-                        value={option.text}
-                        checked={option.isCorrect}
-                        // onChange={}
-                        id={id}
-                        className=""
-                      />
-                      <Label htmlFor={id} className="text-gray-600">
-                        {option.text}
-                      </Label>
-                    </div>
-                    <div className="">
-                      <Checkbox
-                        checked={option.isCorrect}
-                        onCheckedChange={() => setCorrectOption(option.id)}
-                        className="h-5 w-5 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-300 data-[state=checked]:text-white"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </RadioGroup>
             <div className="pt-4">
               <Button
                 type="submit"
@@ -258,4 +191,4 @@ const TrueFalseQ = () => {
   );
 };
 
-export default TrueFalseQ;
+export default FillBlankQ;

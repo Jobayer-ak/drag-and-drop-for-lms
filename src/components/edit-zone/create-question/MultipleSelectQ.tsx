@@ -153,7 +153,7 @@ export default function MultipleSelectQ() {
   };
 
   const reUseClass =
-    'text-gray-600 border rounded-[3px] focus:border-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none  focus-visible:ring-0 border-gray-200 focus-visible:border-gray-200';
+    'text-gray-600 border rounded-[3px] focus:border-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 border-gray-200 focus-visible:border-gray-200';
 
   if (!localState) return null;
 
@@ -212,15 +212,15 @@ export default function MultipleSelectQ() {
             </div>
 
             {/* Points */}
-            <div>
-              <label className="text-sm text-gray-500 font-medium mr-4">
+            <div className="">
+              <label className="text-sm text-gray-500 font-medium">
                 Points
               </label>
               <br />
               <Input
                 type="number"
                 {...form.register('points')}
-                className={`w-45 mt-1 ${reUseClass}`}
+                className={`w-full mt-1 ${reUseClass}`}
               />
             </div>
 
@@ -236,7 +236,7 @@ export default function MultipleSelectQ() {
               {(localState.options ?? []).map((opt) => (
                 <div
                   key={opt.id}
-                  className="flex items-center gap-3 pr-2 rounded-md"
+                  className="flex items-center gap-3 rounded-md"
                 >
                   <div className="flex items-center border border-gray-200 pl-3 rounded-[3px] flex-1">
                     <Input
@@ -277,7 +277,7 @@ export default function MultipleSelectQ() {
                   size="sm"
                   onClick={addOption}
                   variant="outline"
-                  className={`w-full ${reUseClass}`}
+                  className={`w-full cursor-pointer ${reUseClass}`}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Add Option
                 </Button>

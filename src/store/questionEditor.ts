@@ -15,7 +15,7 @@ export type QuestionState = {
   questionText: string;
   points: number;
   options?: EditorOption[];
-  answer?: number;
+  answer?: number | string;
   error_tolerance?: number;
 };
 
@@ -74,6 +74,14 @@ const createDefaultQuestion = (type: QuestionType): QuestionState => {
           { id: uuid(), text: 'False', isCorrect: false },
         ],
       };
+    case 'FillBlank':
+      return {
+        q_id: type,
+        questionText: '',
+        points: 1,
+        answer: 'Answer',
+      };
+
     case 'Numeric':
       return {
         q_id: type,

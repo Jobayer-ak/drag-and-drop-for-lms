@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuestionBuilder } from '../../store/questionBuilder';
+import FillBlank from '../question_comp/fill_blank/FillBlank';
 import MultipleChoice from '../question_comp/multiple_choice/MultipleChoice';
 import { MultipleSelect } from '../question_comp/multiple_select/MultipleSelect';
 import NumericEntry from '../question_comp/numeric_entry/NumericEntry';
@@ -28,6 +29,8 @@ const SortingPreview: React.FC<IPreview> = ({ previewId }) => {
         return <MultipleSelect uid={previewItem[0].uid} preview={true} />;
       case 'TrueFalse':
         return <TrueFalse uid={previewItem[0].uid} preview={true} />;
+      case 'FillBlank':
+        return <FillBlank uid={previewItem[0].uid} preview={true} />;
       case 'Numeric':
         return <NumericEntry uid={previewItem[0].uid} preview={true} />;
       case 'Ordering':

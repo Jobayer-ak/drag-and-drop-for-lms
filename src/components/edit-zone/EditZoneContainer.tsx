@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useQuestionBuilder } from '../../store/questionBuilder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import FillBlankQ from './create-question/FillBlankQ';
 import MultipleChoiceQ from './create-question/MultipleChoiceQ';
 import MultipleSelectQ from './create-question/MultipleSelectQ';
 import NumericQ from './create-question/NumericQ';
@@ -70,6 +71,8 @@ const EditZoneContainer = () => {
       {currentItem === 'MultipleChoice' && <MultipleChoiceQ />}
       {currentItem === 'MultipleSelect' && <MultipleSelectQ />}
       {currentItem === 'TrueFalse' && <TrueFalseQ />}
+      {currentItem === 'FillBlank' && <FillBlankQ />}
+
       {currentItem === 'Numeric' && <NumericQ />}
       {currentItem === 'Ordering' && <OrderingQ />}
     </div>

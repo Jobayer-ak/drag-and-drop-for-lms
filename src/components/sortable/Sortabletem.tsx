@@ -6,12 +6,13 @@ import { DroppedQuestion } from '../../types/types';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useQuestionBuilder } from '../../store/questionBuilder';
+import { useQuestionStore } from '../../store/questionEditor';
+import FillBlank from '../question_comp/fill_blank/FillBlank';
 import MultipleChoice from '../question_comp/multiple_choice/MultipleChoice';
 import { MultipleSelect } from '../question_comp/multiple_select/MultipleSelect';
 import NumericEntry from '../question_comp/numeric_entry/NumericEntry';
 import OrderingQuestion from '../question_comp/ordering_question/OrderingQuestion';
 import TrueFalse from '../question_comp/true_false/TrueFalse';
-import { useQuestionStore } from '../../store/questionEditor';
 
 interface SortableItemProps {
   item: DroppedQuestion;
@@ -64,6 +65,8 @@ const SortableItem: React.FC<SortableItemProps> = ({
         return <MultipleSelect key={item.uid} {...commonProps} />;
       case 'TrueFalse':
         return <TrueFalse key={item.uid} {...commonProps} />;
+      case 'FillBlank':
+        return <FillBlank key={item.uid} {...commonProps} />;
       case 'Numeric':
         return <NumericEntry key={item.uid} {...commonProps} />;
       case 'Ordering':
