@@ -249,7 +249,7 @@ export default function Home() {
     >
       <div className="min-h-screen overflow-hidden bg-white flex flex-row gap-12 px-8 py-4">
         {/* Left Panel */}
-        <aside className="basis-2xl rounded-md min-h-screen overflow-y-auto hide-scrollbar">
+        <aside className="basis-2xl rounded-md h-screen overflow-y-auto overflow-hidden hide-scrollbar">
           <h3 className="bg-gray-200 text-gray-700 text-center py-4 text-lg font-semibold">
             Form Elements
           </h3>
@@ -267,12 +267,12 @@ export default function Home() {
         </aside>
 
         {/* Drop Zone */}
-        <main className="w-full min-h-screen overflow-y-auto hide-scrollbar">
+        <main className="w-full h-screen overflow-hidden overflow-y-auto hide-scrollbar">
           <DropZoneContainer containerRef={containerRef} />
         </main>
 
         {/* Right Panel */}
-        <aside className="basis-4xl border border-gray-200 min-h-screen overflow-y-auto hide-scrollbar">
+        <aside className="basis-4xl border border-gray-200 h-screen overflow-y-auto hide-scrollbar">
           <EditZoneContainer />
         </aside>
 

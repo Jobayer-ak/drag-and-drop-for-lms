@@ -96,8 +96,8 @@ const createDefaultQuestion = (type: QuestionType): QuestionState => {
         questionText: '',
         points: 1,
         options: [
-          { id: uuid(), text: 'Option 1', isCorrect: true },
-          { id: uuid(), text: 'Option 2', isCorrect: false },
+          { id: uuid(), text: 'Option 1' },
+          { id: uuid(), text: 'Option 2' },
         ],
       };
 

@@ -72,7 +72,6 @@ const EditZoneContainer = () => {
       {currentItem === 'MultipleSelect' && <MultipleSelectQ />}
       {currentItem === 'TrueFalse' && <TrueFalseQ />}
       {currentItem === 'FillBlank' && <FillBlankQ />}
-
       {currentItem === 'Numeric' && <NumericQ />}
       {currentItem === 'Ordering' && <OrderingQ />}
     </div>

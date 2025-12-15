@@ -233,44 +233,47 @@ export default function MultipleSelectQ() {
                 </span>
               </div>
 
-              {(localState.options ?? []).map((opt) => (
-                <div
-                  key={opt.id}
-                  className="flex items-center gap-3 rounded-md"
-                >
-                  <div className="flex items-center border border-gray-200 pl-3 rounded-[3px] flex-1">
-                    <Input
-                      value={opt.text}
-                      onChange={(e) => updateOptionText(opt.id, e.target.value)}
-                      placeholder={`Option ${getOptionIndex(opt.id)}`}
-                      className={`${reUseClass} border-0 flex-1`}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeOption(opt.id)}
-                      disabled={(localState.options?.length ?? 0) <= 2}
-                    >
-                      <Trash2
-                        className={`h-4 w-4 ${
-                          (localState.options?.length ?? 0) <= 2
-                            ? 'text-gray-400'
-                            : 'text-red-600'
-                        }`}
+              <div className="flex flex-col gap-1">
+                {(localState.options ?? []).map((opt) => (
+                  <div
+                    key={opt.id}
+                    className="flex items-center gap-3 rounded-md"
+                  >
+                    <div className="flex items-center border border-gray-200 pl-3 rounded-[3px] flex-1">
+                      <Input
+                        value={opt.text}
+                        onChange={(e) =>
+                          updateOptionText(opt.id, e.target.value)
+                        }
+                        placeholder={`Option ${getOptionIndex(opt.id)}`}
+                        className={`${reUseClass} border-0 flex-1`}
                       />
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeOption(opt.id)}
+                        disabled={(localState.options?.length ?? 0) <= 2}
+                      >
+                        <Trash2
+                          className={`h-4 w-4 ${
+                            (localState.options?.length ?? 0) <= 2
+                              ? 'text-gray-400'
+                              : 'text-red-600'
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                    <div className="">
+                      <Checkbox
+                        checked={opt.isCorrect}
+                        onCheckedChange={() => toggleCorrectOption(opt.id)}
+                        className="h-5 w-5 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-300 data-[state=checked]:text-white"
+                      />
+                    </div>
                   </div>
-                  <div className="">
-                    <Checkbox
-                      checked={opt.isCorrect}
-                      onCheckedChange={() => toggleCorrectOption(opt.id)}
-                      className="h-5 w-5 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-300 data-[state=checked]:text-white"
-                    />
-                  </div>
-                </div>
-              ))}
-
+                ))}
+              </div>
               <div className="mt-5 flex items-center justify-center border border-gray-300 rounded-[3px]">
                 <Button
                   type="button"

@@ -24,8 +24,9 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const options = ['Option 1', 'Option 2'];
-  const { selectedUid, duplicateDroppedItem } = useQuestionBuilder();
+  const { selectedUid, duplicateDroppedItem, droppedItems } =
+    useQuestionBuilder();
+  const singleDroppedItem = droppedItems.find((item) => item.uid === uid);
 
   return (
     <Card
@@ -71,27 +72,25 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
 
       <CardContent className="text-gray-700">
         <div className="flex flex-col gap-2">
-          {options.map((option, index) => {
+          {singleDroppedItem?.data?.options.map((option, index) => {
             const optionId = `${uid}-option-${index}`;
             return (
               <div
                 key={optionId}
-                className="ms-1 px-2 border border-gray-200 rounded-sm py-1"
+                className="ms-1 px-2 border border-gray-200 rounded-[3px] py-1"
               >
                 <div className="flex items-center gap-3 text-gray-400 py-1">
-                  {/* Drag handle for individual option inside card if needed */}
-
                   <MdOutlineDragIndicator
                     className="h-4 w-4 text-gray-400"
-                    {...dragHandleProps}
+                    // {...dragHandleProps}
                   />
                   <span
-                    className="flex items-center justify-center w-6 h-6 bg-gray-300 text-gray-500 
+                    className="flex items-center justify-center w-6 h-6 bg-gray-200 text-gray-400 
                     text-xs font-medium rounded-full"
                   >
                     {index + 1}
                   </span>
-                  <p className="text-sm">{option}</p>
+                  <p className="text-sm">{option.text}</p>
                 </div>
               </div>
             );
@@ -103,7 +102,7 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          Ordering 3 Points
+          Ordering {singleDroppedItem?.data?.points} Points
         </Badge>
       </CardFooter>
     </Card>
