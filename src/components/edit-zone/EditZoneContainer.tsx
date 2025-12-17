@@ -8,6 +8,7 @@ import MultipleChoiceQ from './create-question/MultipleChoiceQ';
 import MultipleSelectQ from './create-question/MultipleSelectQ';
 import NumericQ from './create-question/NumericQ';
 import OrderingQ from './create-question/OrderingQ';
+import ShortAnswerQ from './create-question/ShortAnswerQ';
 import TrueFalseQ from './create-question/TrueFalseQ';
 
 const EditZoneContainer = () => {
@@ -74,6 +75,7 @@ const EditZoneContainer = () => {
       {currentItem === 'FillBlank' && <FillBlankQ />}
       {currentItem === 'Numeric' && <NumericQ />}
       {currentItem === 'Ordering' && <OrderingQ />}
+      {currentItem === 'ShortAnswer' && <ShortAnswerQ />}
     </div>
   );
 };

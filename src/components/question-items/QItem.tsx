@@ -3,9 +3,15 @@
 import { IconType } from 'react-icons';
 import { BiSolidSelectMultiple } from 'react-icons/bi';
 import { BsListCheck } from 'react-icons/bs';
-import { FaBarsStaggered, FaCircleDot } from 'react-icons/fa6';
+import {
+  FaBarsStaggered,
+  FaCircleDot,
+  FaClipboardCheck,
+  FaImage,
+} from 'react-icons/fa6';
 import { GoNumber } from 'react-icons/go';
 import { GrDrag } from 'react-icons/gr';
+import { HiMenuAlt1 } from 'react-icons/hi';
 import { PiAlignBottomFill, PiLinkSimpleFill } from 'react-icons/pi';
 import { Card, CardContent } from '../ui/card';
 
@@ -17,6 +23,9 @@ export const ICON_MAP: Record<string, IconType> = {
   PiLinkSimpleFill,
   GoNumber,
   FaBarsStaggered,
+  FaClipboardCheck,
+  HiMenuAlt1,
+  FaImage,
 };
 
 interface QItemProps {
@@ -37,9 +46,9 @@ export function QItem({
   return (
     <div id="icard" className="min-h-auto touch-none">
       <Card
-        className={`w-full max-w-sm shadow-none rounded-sm px-4 py-3 bg-white border-0 border-b border-gray-200 ${className} hover:cursor-move `}
+        className={`w-full max-w-sm shadow-none rounded-sm px-0 py-3 bg-white border-0 border-b border-gray-200 ${className} hover:cursor-move `}
       >
-        <CardContent className="p-0 flex items-center justify-between gap-6">
+        <CardContent className="p-0 flex items-center justify-between gap-4">
           <div className="">
             <LeftIcon className="h-5 w-5 text-green-600" strokeWidth={0.8} />
           </div>

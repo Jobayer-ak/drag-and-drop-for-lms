@@ -65,6 +65,24 @@ const items = [
     description: 'Arrange items in correct order',
     icon: 'FaBarsStaggered',
   },
+  {
+    id: 'ShortAnswer',
+    name: 'Short Answer/Free Text',
+    description: '2-3 sentence response',
+    icon: 'FaClipboardCheck',
+  },
+  {
+    id: 'LongAnswer',
+    name: 'Essay/Long Answer',
+    description: 'Extended write response',
+    icon: 'HiMenuAlt1',
+  },
+  {
+    id: 'FileUpload',
+    name: 'File Upload',
+    description: 'Student uploads a file',
+    icon: 'FaImage',
+  },
 ];
 const questionsName = [
   'MultipleChoice',
@@ -74,6 +92,8 @@ const questionsName = [
   'Matching',
   'Numeric',
   'Ordering',
+  'ShortAnswer',
+  'LongAnswer',
 ];
 
 export default function Home() {
@@ -92,7 +112,7 @@ export default function Home() {
     moveDroppedItemByUid,
   } = useQuestionBuilder();
 
-  const { MultipleChoice, getQuestion } = useQuestionStore();
+  const { getQuestion } = useQuestionStore();
 
   useEffect(() => {
     setMounted(true);

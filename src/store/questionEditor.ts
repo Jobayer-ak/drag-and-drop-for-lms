@@ -26,7 +26,10 @@ export type QuestionType =
   | 'FillBlank'
   | 'Matching'
   | 'Numeric'
-  | 'Ordering';
+  | 'Ordering'
+  | 'ShortAnswer'
+  | 'LongAnswer'
+  | 'FileUpload';
 
 type QuestionStore = {
   MultipleChoice: QuestionState;
@@ -101,6 +104,25 @@ const createDefaultQuestion = (type: QuestionType): QuestionState => {
         ],
       };
 
+    case 'ShortAnswer':
+      return {
+        q_id: type,
+        questionText: '',
+        points: 3,
+      };
+    case 'LongAnswer':
+      return {
+        q_id: type,
+        questionText: '',
+        points: 5,
+      };
+    case 'FileUpload':
+      return {
+        q_id: type,
+        questionText: '',
+        points: 5,
+      };
+
     default:
       return {
         q_id: type,
@@ -125,6 +147,9 @@ export const useQuestionStore = create<QuestionStore>()(
         Matching: createDefaultQuestion('Matching'),
         Numeric: createDefaultQuestion('Numeric'),
         Ordering: createDefaultQuestion('Ordering'),
+        ShortAnswer: createDefaultQuestion('ShortAnswer'),
+        LongAnswer: createDefaultQuestion('LongAnswer'),
+        FileUpload: createDefaultQuestion('FileUpload'),
 
         getQuestion: (questionType) => {
           const state = get();

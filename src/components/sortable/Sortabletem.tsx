@@ -7,11 +7,14 @@ import { DroppedQuestion } from '../../types/types';
 import { CSS } from '@dnd-kit/utilities';
 import { useQuestionBuilder } from '../../store/questionBuilder';
 import { useQuestionStore } from '../../store/questionEditor';
+import FileUpload from '../question_comp/file-upload/FileUpload';
 import FillBlank from '../question_comp/fill_blank/FillBlank';
+import LongAnswer from '../question_comp/long-answer/LongAnswer';
 import MultipleChoice from '../question_comp/multiple_choice/MultipleChoice';
 import { MultipleSelect } from '../question_comp/multiple_select/MultipleSelect';
 import NumericEntry from '../question_comp/numeric_entry/NumericEntry';
 import OrderingQuestion from '../question_comp/ordering_question/OrderingQuestion';
+import ShortAnswer from '../question_comp/short-answer/ShortAnswer';
 import TrueFalse from '../question_comp/true_false/TrueFalse';
 
 interface SortableItemProps {
@@ -71,6 +74,12 @@ const SortableItem: React.FC<SortableItemProps> = ({
         return <NumericEntry key={item.uid} {...commonProps} />;
       case 'Ordering':
         return <OrderingQuestion key={item.uid} {...commonProps} />;
+      case 'ShortAnswer':
+        return <ShortAnswer key={item.uid} {...commonProps} />;
+      case 'LongAnswer':
+        return <LongAnswer key={item.uid} {...commonProps} />;
+      case 'FileUpload':
+        return <FileUpload key={item.uid} {...commonProps} />;
       default:
         return null;
     }

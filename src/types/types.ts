@@ -7,7 +7,9 @@ export type QuestionType =
   | 'FillBlank'
   | 'TrueFalse'
   | 'Numeric'
-  | 'Ordering';
+  | 'Ordering'
+  | 'ShortAnswer'
+  | 'LongAnswer';
 
 export interface DroppedQuestion {
   uid: string; // use stable uid, e.g., 'MultipleChoice'
