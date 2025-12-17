@@ -11,7 +11,7 @@ import { Input } from '../../ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
 import { Textarea } from '../../ui/textarea';
 
-const PREFIX = 'Short Answer Question ';
+const PREFIX = 'Long Answer Question ';
 
 const schema = z.object({
   questionText: z.string().optional().default(''),
@@ -20,7 +20,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const ShortAnswerQ = () => {
+const LongAnswerQ = () => {
   const { droppedItems, selectedUid, updateDroppedItem } = useQuestionBuilder();
 
   const singleDroppedItem = droppedItems.find(
@@ -79,7 +79,7 @@ const ShortAnswerQ = () => {
   return (
     <div>
       <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-md font-semibold">
-        Short Answer Question
+        Essay Question
       </h3>
       <Tabs defaultValue="general" className="">
         <TabsList className="grid grid-cols-3 gap-5 w-full h-12 shadow-sm pb-0">
@@ -121,7 +121,7 @@ const ShortAnswerQ = () => {
               </label>
               <Textarea
                 {...form.register('questionText')}
-                placeholder="Type your question here..."
+                placeholder="Type your essay here..."
                 className="mt-2 text-gray-600 border rounded-lg focus:border-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 border-gray-200 focus-visible:border-gray-200"
                 rows={8}
               />
@@ -167,4 +167,4 @@ const ShortAnswerQ = () => {
   );
 };
 
-export default ShortAnswerQ;
+export default LongAnswerQ;

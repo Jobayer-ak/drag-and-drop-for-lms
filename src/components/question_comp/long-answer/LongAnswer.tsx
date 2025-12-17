@@ -11,10 +11,12 @@ import { Badge } from '../../ui/badge';
 import {
   Card,
   CardAction,
+  CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '../../ui/card';
+import { Textarea } from '../../ui/textarea';
 
 const LongAnswer: React.FC<ComponentNameProps> = ({
   uid,
@@ -45,7 +47,7 @@ const LongAnswer: React.FC<ComponentNameProps> = ({
             className="h-6 w-6 text-gray-400 cursor-move focus:outline-none focus:ring-0"
             {...dragHandleProps}
           />
-          Long Answer Question
+          Essay Question {singleDroppedItem?.data?.questionText}
         </CardTitle>
         <CardAction>
           <div className="flex justify-end items-center gap-2">
@@ -69,35 +71,17 @@ const LongAnswer: React.FC<ComponentNameProps> = ({
           </div>
         </CardAction>
       </CardHeader>
-
-      {/* <CardContent>
-        <RadioGroup
-          value={selected}
-          onValueChange={(val) => setSelected(val)}
-          className="px-1 text-gray-400"
-        >
-          {singleDroppedItem?.data?.options.map((option, index) => {
-            const id = `${uid}-option-${index}`;
-            return (
-              <div key={id} className="flex items-center gap-3">
-                <RadioGroupItem
-                  value={option.text}
-                  checked={option.isCorrect}
-                  id={id}
-                  className="border border-gray-400"
-                />
-                <Label htmlFor={id}>{option.text}</Label>
-              </div>
-            );
-          })}
-        </RadioGroup>
-
-        <div className="h-px w-full mt-4 mx-1 bg-gray-300"></div>
-      </CardContent> */}
+      <CardContent className="text-gray-600 px-8 ">
+        <Textarea
+          placeholder="Type your essay here..."
+          className="mt-2 rounded-[3px] text-gray-600 border bg-gray-100 focus:border-gray-200 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 border-gray-200 focus-visible:border-gray-200"
+          rows={8}
+        />
+      </CardContent>
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
-          Long Answer {singleDroppedItem?.data?.points} Point
+          Essay Question {singleDroppedItem?.data?.points} Point
         </Badge>
       </CardFooter>
     </Card>

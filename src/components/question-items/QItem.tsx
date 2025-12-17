@@ -46,7 +46,7 @@ export function QItem({
   return (
     <div id="icard" className="min-h-auto touch-none">
       <Card
-        className={`w-full max-w-sm shadow-none rounded-sm px-0 py-3 bg-white border-0 border-b border-gray-200 ${className} hover:cursor-move `}
+        className={`w-full max-w-sm shadow-none rounded-sm py-3 bg-white border-0 border-b border-gray-200 ${className} hover:cursor-move `}
       >
         <CardContent className="p-0 flex items-center justify-between gap-4">
           <div className="">

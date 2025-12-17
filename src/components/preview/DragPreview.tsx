@@ -20,7 +20,7 @@ export default function DragPreview({
         leftIcon={leftIcon}
         heading={heading}
         description={description}
-        className="border border-gray-200"
+        className="border border-gray-200 px-4"
       />
     </div>
   );

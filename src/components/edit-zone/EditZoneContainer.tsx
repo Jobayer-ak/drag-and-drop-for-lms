@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useQuestionBuilder } from '../../store/questionBuilder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import FillBlankQ from './create-question/FillBlankQ';
+import LongAnswerQ from './create-question/LongAnswerQ';
 import MultipleChoiceQ from './create-question/MultipleChoiceQ';
 import MultipleSelectQ from './create-question/MultipleSelectQ';
 import NumericQ from './create-question/NumericQ';
@@ -76,6 +77,7 @@ const EditZoneContainer = () => {
       {currentItem === 'Numeric' && <NumericQ />}
       {currentItem === 'Ordering' && <OrderingQ />}
       {currentItem === 'ShortAnswer' && <ShortAnswerQ />}
+      {currentItem === 'LongAnswer' && <LongAnswerQ />}
     </div>
   );
 };

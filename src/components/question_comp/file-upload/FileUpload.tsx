@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AiFillPlusCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { MdOutlineDragIndicator } from 'react-icons/md';
 import { RiDeleteBinLine } from 'react-icons/ri';
@@ -11,10 +12,12 @@ import { Badge } from '../../ui/badge';
 import {
   Card,
   CardAction,
+  CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '../../ui/card';
+import { Input } from '../../ui/input';
 
 const FileUpload: React.FC<ComponentNameProps> = ({
   uid,
@@ -70,30 +73,21 @@ const FileUpload: React.FC<ComponentNameProps> = ({
         </CardAction>
       </CardHeader>
 
-      {/* <CardContent>
-        <RadioGroup
-          value={selected}
-          onValueChange={(val) => setSelected(val)}
-          className="px-1 text-gray-400"
-        >
-          {singleDroppedItem?.data?.options.map((option, index) => {
-            const id = `${uid}-option-${index}`;
-            return (
-              <div key={id} className="flex items-center gap-3">
-                <RadioGroupItem
-                  value={option.text}
-                  checked={option.isCorrect}
-                  id={id}
-                  className="border border-gray-400"
-                />
-                <Label htmlFor={id}>{option.text}</Label>
-              </div>
-            );
-          })}
-        </RadioGroup>
-
-        <div className="h-px w-full mt-4 mx-1 bg-gray-300"></div>
-      </CardContent> */}
+      <CardContent>
+        <label className="relative flex flex-col items-center justify-center w-full h-32 border border-gray-200 rounded-[6px] bg-gray-100 cursor-pointer hover:bg-gray-200">
+          {/* Upload icon and text */}
+          <div className="flex flex-col items-center justify-center text-gray-500">
+            <AiFillPlusCircle className="text-3xl mb-2" />
+            <p className="text-sm">upload your signature (max size 5mb)</p>
+            <p className="text-sm">Allowed File: .jpeg .jpg .png</p>
+          </div>
+          {/* Hidden input */}
+          <Input
+            type="file"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </label>
+      </CardContent>
 
       <CardFooter className="pb-2 pt-0">
         <Badge className="bg-blue-700 text-white text-xs">
