@@ -8,8 +8,8 @@ import { MdOutlineDragIndicator } from 'react-icons/md';
 interface SortableOptionProps {
   option: any;
   index: number;
-  uid: string;
-  optionId: string;
+  uid?: string;
+  optionId?: string;
 }
 
 const SortableOptions: React.FC<SortableOptionProps> = ({
@@ -35,7 +35,6 @@ const SortableOptions: React.FC<SortableOptionProps> = ({
     },
   });
 
-  console.log('is dragging: ', isDragging);
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -50,7 +49,7 @@ const SortableOptions: React.FC<SortableOptionProps> = ({
     >
       <div className="flex items-center gap-3 text-gray-400 py-1">
         <MdOutlineDragIndicator
-          className="h-4 w-4 text-gray-400 cursor-move"
+          className="h-4 w-4 text-gray-400 cursor-move focus-visible:ring-0 focus:outline-none"
           {...attributes}
           {...listeners}
         />

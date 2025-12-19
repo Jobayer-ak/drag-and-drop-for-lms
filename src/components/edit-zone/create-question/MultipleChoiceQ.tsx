@@ -161,7 +161,7 @@ export default function MultipleChoiceQ() {
   return (
     <div className="flex h-full flex-col">
       <h3 className="bg-gray-200 text-gray-700 text-center py-4 text-md font-semibold">
-        Edit Multiple Choice Question
+        Multiple Choice Question
       </h3>
 
       <Tabs

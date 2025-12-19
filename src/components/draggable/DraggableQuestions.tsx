@@ -27,10 +27,8 @@ const DraggableQuestions = ({
 
     over,
   } = useDraggable({
-    id, // Unique random ID
+    id,
   });
-
-  // const id = useMemo(() => uuidv4(), []);
 
   return (
     <div ref={setNodeRef} {...attributes} {...listeners}>

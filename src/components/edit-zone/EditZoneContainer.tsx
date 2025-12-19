@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { LiaPencilRulerSolid } from 'react-icons/lia';
 import { useQuestionBuilder } from '../../store/questionBuilder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import FillBlankQ from './create-question/FillBlankQ';
@@ -26,7 +27,7 @@ const EditZoneContainer = () => {
 
   return (
     <div className="hide-scrollbar">
-      {droppedItems?.length < 1 && (
+      {(droppedItems?.length < 1 || !selectedUid) && (
         <div>
           <h3 className="bg-gray-200 text-gray-700  text-center py-4 text-md font-semibold">
             Question
@@ -59,7 +60,14 @@ const EditZoneContainer = () => {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="general" className="px-4 py-2">
-              <h2> General</h2>
+              <div className="h-screen flex justify-center items-center">
+                <div className="flex flex-col justify-center items-center">
+                  <LiaPencilRulerSolid size={56} fill="gray" />
+                  <p className="text-gray-400 text-md font-bold text-center">
+                    Select a question to <br /> configure it
+                  </p>
+                </div>
+              </div>
             </TabsContent>
             <TabsContent value="rubrics">
               <h2>Rubrics</h2>

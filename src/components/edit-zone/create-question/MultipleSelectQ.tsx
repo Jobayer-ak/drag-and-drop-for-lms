@@ -160,7 +160,7 @@ export default function MultipleSelectQ() {
   return (
     <div className="flex h-full flex-col">
       <h3 className="bg-gray-200 text-gray-700 text-center py-4 text-md font-semibold">
-        Edit Multiple Select Question
+        Multiple Select Question
       </h3>
 
       <Tabs

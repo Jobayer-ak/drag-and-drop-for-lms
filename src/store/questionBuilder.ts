@@ -8,7 +8,7 @@ import { immer } from 'zustand/middleware/immer';
 import { QuestionState } from './questionEditor';
 
 export interface QuestionItem {
-  id: string; // type of question: MultipleChoice, TrueFalse, etc.
+  id: string;
   name: string;
   description: string;
   icon: string;
@@ -16,15 +16,15 @@ export interface QuestionItem {
 }
 
 export interface DroppedQuestion extends QuestionItem {
-  uid: string; // unique instance id
-  data?: any; // for question-specific data (options, selected, points, etc.)
+  uid: string;
+  data?: any;
   type?: string;
 }
 
 interface QuestionBuilderStore {
   activeItem: QuestionItem | null;
   droppedItems: DroppedQuestion[];
-  selectedUid: string | null; // currently selected question for editing
+  selectedUid: string | null;
 
   // actions
   setActiveItem: (item: QuestionItem | null) => void;

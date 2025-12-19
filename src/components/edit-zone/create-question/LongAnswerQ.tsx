@@ -47,14 +47,6 @@ const LongAnswerQ = () => {
     });
   }, [singleDroppedItem, form]);
 
-  if (!singleDroppedItem?.data) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <span className="text-gray-500">Loading question...</span>
-      </div>
-    );
-  }
-
   const extractAfterPrefix = (text: string) => {
     if (!text.startsWith(PREFIX)) return '';
     return text.slice(PREFIX.length).trim();
@@ -67,8 +59,6 @@ const LongAnswerQ = () => {
       questionText: extractAfterPrefix(values.questionText ?? ''),
       points: values.points,
     };
-
-    console.log('Updated questionText after prefix:', upData.questionText);
 
     updateDroppedItem(selectedUid, upData);
     showSuccess('Question updated successfully!');

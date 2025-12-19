@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
@@ -58,6 +59,8 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
 
   const handleOptionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
+    console.log('active option: ', active);
 
     if (!over || active.id === over.id || !singleDroppedItem) return;
 
@@ -157,9 +160,7 @@ const OrderingQuestion: React.FC<ComponentNameProps> = ({
               )}
             </div>
           </SortableContext>
-          <DragOverlay>
-            <div>Hello</div>
-          </DragOverlay>
+          <DragOverlay>{/* <Sortable */}</DragOverlay>
         </DndContext>
 
         <div className="h-px w-full mt-4 bg-gray-300" />

@@ -16,7 +16,6 @@ const DropZoneContainer = ({ containerRef }: { containerRef: any }) => {
   const [pendingDeleteUid, setPendingDeleteUid] = useState<string | null>(null);
   const { droppedItems, deleteDroppedItem } = useQuestionBuilder();
 
-  console.log('dropped: ', droppedItems);
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
